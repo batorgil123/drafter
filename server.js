@@ -33,10 +33,20 @@ function freshState() {
   };
 }
 let state;
-try { state = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); } catch { state = freshState(); }
+// draft-result.json holds the final draft. While it exists the board is static:
+// it always shows that result (data.json is ignored) and every action is rejected.
+// Delete draft-result.json to go back to a normal, editable draft.
+const RESULT_FILE = path.join(__dirname, 'draft-result.json');
+let FINAL = false;
+try { state = JSON.parse(fs.readFileSync(RESULT_FILE, 'utf8')); state.final = true; FINAL = true; console.log('Static mode: showing draft-result.json'); }
+catch {
+  try { state = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); } catch { state = freshState(); }
+}
 let saveTimer = null;
 function save() {
   clearTimeout(saveTimer);
+  // static mode: company edits go straight into draft-result.json
+  if (FINAL) { saveTimer = setTimeout(() => fs.writeFile(RESULT_FILE, JSON.stringify(state, null, 1), () => {}), 200); return; }
   saveTimer = setTimeout(() => fs.writeFile(DATA_FILE, JSON.stringify(state), () => {}), 200);
 }
 
@@ -87,7 +97,7 @@ function buildOrder(teamCount, poolSize) {
   return order;
 }
 
-const COMPANIES = ['TPG', 'TPI', 'EM', 'MCST'];
+const COMPANIES = ['MCST', 'EM', 'TPG', 'TPI', 'FP'];
 function playerFrom(d) {
   const mmr = Math.max(0, Math.min(15000, parseInt(d.mmr, 10) || 0));
   const pos = Math.max(1, Math.min(5, parseInt(d.pos, 10) || 1));
@@ -146,6 +156,12 @@ const actions = {
   },
   resetDraft() { Object.assign(state, { phase: 'setup', teams: [], order: [], pickIndex: 0, history: [] }); },
   resetAll() { state = freshState(); },
+  setCompany(a, d) { // works after the draft too (incl. static mode); '' clears it
+    const p = getP(d.id); if (!p) throw new Error('Тоглогч олдсонгүй');
+    const c = String(d.company || '').trim().toUpperCase();
+    if (c && !COMPANIES.includes(c)) throw new Error('Буруу компани');
+    if (c) p.company = c; else delete p.company;
+  },
   // ---- captain or admin ----
   pick(a, d) {
     if (state.phase !== 'draft') throw new Error('Драфт идэвхгүй байна');
@@ -160,6 +176,7 @@ const actions = {
   },
 };
 const CAPTAIN_ALLOWED = new Set(['pick']);
+const FINAL_ALLOWED = new Set(['setCompany']); // only action allowed in static mode
 
 // ---------- server ----------
 const app = express();
@@ -186,6 +203,7 @@ io.on('connection', (socket) => {
   socket.on('action', ({ type, data } = {}, cb) => {
     const a = socket.data.acct; const fn = actions[type];
     try {
+      if (FINAL && !FINAL_ALLOWED.has(type)) throw new Error('Драфт дууссан — эцсийн дүн түгжигдсэн');
       if (!fn) throw new Error('Үл мэдэгдэх үйлдэл');
       if (!a) throw new Error('Нэвтэрнэ үү');
       if (a.role !== 'admin' && !CAPTAIN_ALLOWED.has(type)) throw new Error('Зөвхөн админ');

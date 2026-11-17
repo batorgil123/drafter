@@ -59,15 +59,21 @@ button{font:inherit;cursor:pointer;border:0;border-radius:8px;color:var(--text)}
 .order{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 18px}
 .order span{min-width:30px;text-align:center;padding:4px 6px;border-radius:6px;background:#161a20;border:1px solid var(--line);font-size:12px;color:var(--mute)}
 .order span.past{opacity:.35}.order span.now{background:var(--red);color:#fff;border-color:var(--red);font-weight:700}
-.teams{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:22px}
-.teams.c4{grid-template-columns:repeat(4,1fr)}
+.teams{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.teams.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
 .team{border:1px solid var(--line);border-radius:12px;background:var(--card2);padding:12px;min-height:220px}
 .team.turn{border-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
 .team.me{background:linear-gradient(180deg,#1a1410,var(--card2))}
 .team h3{font-size:18px;display:flex;justify-content:space-between}
 .team .avg{color:var(--mute);font-size:12px;margin-bottom:8px}
 .slot{padding:7px 8px;border-radius:8px;background:#0e1115;margin-top:6px;font-size:13.5px}
-.slot b{display:block;font-size:14px}.slot small{color:var(--mute)}
+.slot b{display:block;font-size:14px}
+.slot.ed{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.slot.ed>div{min-width:0}
+.slot b{overflow-wrap:anywhere}
+.slot .ib{width:28px;height:28px;flex-shrink:0}
+.slot .cosel{display:block;width:100%;margin-top:6px;padding:5px 8px;font-size:12.5px;font-weight:600;border-radius:6px}
+.slot .cosel.none{color:var(--mute);border-style:dashed}.slot small{color:var(--mute)}
 .slot.capt b{color:var(--gold)}
 .slot.empty{border:1px dashed var(--line);background:transparent;color:#4b525c;text-align:center}
 .slot.new{animation:flash 1.2s}
@@ -143,6 +149,7 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
  <section class="card hidden" id="draft">
   <div class="phead">
    <div class="ctitle"><svg width="24" height="24"><use href="#i-swords"/></svg><h2 id="draftTitle">Драфт самбар</h2></div>
+   <div class="toolbar hidden" id="coTools"><button class="btn" id="coEditBtn">Компани засах</button></div>
    <div class="toolbar adminOnly">
     <button class="btn" id="undoBtn">↶ Буцаах</button>
     <button class="btn" id="resetDraftBtn">Драфт дахин эхлүүлэх</button>
@@ -205,11 +212,11 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const ROLES={1:'Керри',2:'Мид',3:'Оффлэйн',4:'Ровер',5:'Хард саппорт'};
-const COMPANIES=['TPG','TPI','EM','MCST'];
+const COMPANIES=['MCST','EM','TPG','TPI','FP'];
 const MEDALS=['Herald','Guardian','Crusader','Archon','Legend','Ancient','Divine','Immortal'];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let S=null, ME=null, lastPicks=0;
+let S=null, ME=null, lastPicks=0, coEdit=false;
 let token=null; try{token=localStorage.getItem('sd_token')}catch(e){}
 
 const socket=io({auth:{token}});
@@ -229,7 +236,7 @@ const crown=(w=18)=>`<svg width="${w}" height="${w}"><use href="#i-crown"/></svg
 
 function render(prev){
  if(!S)return;
- document.querySelectorAll('.adminOnly').forEach(e=>e.classList.toggle('hidden',!isAdmin()));
+ document.querySelectorAll('.adminOnly').forEach(e=>e.classList.toggle('hidden',!isAdmin()||!!S.final));
  $('#loginBtn').classList.toggle('hidden',!!ME);$('#logoutBtn').classList.toggle('hidden',!ME);
  const chip=$('#meChip');chip.classList.toggle('hidden',!ME);
  if(ME)chip.innerHTML=ME.role==='admin'?'Админ':`Баг ${ME.team}-ийн ахлагч`;
@@ -321,8 +328,12 @@ function renderDraft(prev){
  const mine=!done&&ME&&ME.role==='captain'&&ME.team===cur;
  $('#draftTitle').textContent=done?'Драфт дууссан':'Драфт явагдаж байна';
  $('#undoBtn').disabled=!S.history.length;
+ $('#coTools').classList.toggle('hidden',!(isAdmin()&&done));
+ const missing=S.players.filter(p=>!p.company).length;
+ $('#coEditBtn').textContent=coEdit?'✓ Дууссан':`Компани засах${missing?` (${missing} дутуу)`:''}`;
+ $('#coEditBtn').classList.toggle('red',coEdit);
  const b=$('#banner');b.className='banner'+(mine?' mine':'');
- if(done)b.innerHTML=`<div class="big">🏁 Бүх багууд бүрдлээ</div><div class="muted">${S.history.length} сонголт хийгдсэн</div>`;
+ if(done)b.innerHTML=`<div class="big">🏁 ${S.final?'Эцсийн бүрэлдэхүүн':'Бүх багууд бүрдлээ'}</div><div class="muted">${S.history.length} сонголт хийгдсэн${S.final?' · дүн түгжигдсэн':''}</div>`;
  else{
   const capt=P(S.teams.find(t=>t.no===cur).captainId);
   b.innerHTML=`<div><div class="big">${mine?'Таны ээлж! Тоглогч сонгоно уу':`Баг ${cur} сонгож байна`}</div><div class="muted">Ахлагч: ${esc(capt.name)} · Сонголт ${S.pickIndex+1}/${S.order.length}</div></div>`+
@@ -335,7 +346,11 @@ function renderDraft(prev){
  tEl.innerHTML=S.teams.map(t=>{
   const ps=t.players.map(P).filter(Boolean),avg=Math.round(ps.reduce((s,p)=>s+p.mmr,0)/ps.length);
   const total=ps.reduce((s,p)=>s+p.mmr,0);
-  let slots=ps.map((p,i)=>`<div class="slot ${i===0?'capt':''} ${p.id===lastId?'new':''}"><b>${i===0?'👑 ':''}${esc(p.name)} ${co(p)}</b><small>${p.mmr} · ${ROLES[p.pos]} / P${p.sec}</small></div>`).join('');
+  // admin: after the draft, pick the company right on the team card; during the draft, full edit
+  // admin: during the draft a full-edit button; after it, a company dropdown (only in "Компани засах" mode)
+  const editBtn=isAdmin()&&!done;
+  const sel=p=>isAdmin()&&done&&coEdit?`<select class="cosel ${p.company?'':'none'}" data-co="${p.id}" title="Компани"><option value="">Компани…</option>${COMPANIES.map(c=>`<option ${p.company===c?'selected':''}>${c}</option>`).join('')}</select>`:'';
+  let slots=ps.map((p,i)=>`<div class="slot ${i===0?'capt':''} ${p.id===lastId?'new':''} ${editBtn?'ed':''}"><div><b>${i===0?'👑 ':''}${esc(p.name)} ${co(p)}</b><small>${p.mmr} · ${ROLES[p.pos]} / P${p.sec}</small>${sel(p)}</div>${editBtn?`<button class="ib" title="Засах" data-edit="${p.id}"><svg width="15" height="15"><use href="#i-edit"/></svg></button>`:''}</div>`).join('');
   for(let i=ps.length;i<5;i++)slots+=`<div class="slot empty">—</div>`;
   return `<div class="team ${t.no===cur&&!done?'turn':''} ${ME&&ME.team===t.no?'me':''}"><h3><span>Баг ${t.no}</span><span class="muted" style="font-size:14px">${ps.length}/5</span></h3><div class="avg">Нийт ${total} · Дундаж ${avg} MMR</div>${slots}</div>`;
  }).join('');
@@ -346,6 +361,11 @@ function renderDraft(prev){
 }
 
 // ---- events ----
+document.addEventListener('change',async e=>{
+ const s=e.target.closest('select[data-co]');if(!s)return;
+ const r=await act('setCompany',{id:s.dataset.co,company:s.value});
+ if(r&&r.ok)toast(`${P(s.dataset.co).name}: ${s.value||'компани арилгалаа'}`);
+});
 document.addEventListener('click',async e=>{
  const t=e.target.closest('button');if(!t)return;
  if(t.dataset.cap)act('toggleCaptain',{id:t.dataset.cap});
@@ -358,6 +378,7 @@ document.addEventListener('click',async e=>{
 $('#lockBtn').onclick=()=>act('lockCaptains');
 $('#startBtn').onclick=()=>act('startDraft');
 $('#undoBtn').onclick=()=>act('undo');
+$('#coEditBtn').onclick=()=>{coEdit=!coEdit;render()};
 $('#resetDraftBtn').onclick=e=>{const b=e.currentTarget;if(b.dataset.sure){delete b.dataset.sure;b.textContent='Драфт дахин эхлүүлэх';act('resetDraft')}else{b.dataset.sure=1;b.textContent='Итгэлтэй юу? Дахин дар';setTimeout(()=>{delete b.dataset.sure;b.textContent='Драфт дахин эхлүүлэх'},3000)}};
 $('#addBtn').onclick=()=>openPlayer(null);
 $('#loginBtn').onclick=()=>{$('#loginErr').textContent='';$('#loginM').classList.add('open');$('#loginF').username.focus()};

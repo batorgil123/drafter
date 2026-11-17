@@ -1,0 +1,477 @@
+{
+ "players": [
+  {
+   "id": "p1",
+   "name": "TEMUULEN",
+   "medal": "Immortal",
+   "mmr": 6000,
+   "pos": 4,
+   "sec": 5,
+   "company": "EM"
+  },
+  {
+   "id": "p2",
+   "name": "BILGUUN",
+   "medal": "Immortal",
+   "mmr": 5950,
+   "pos": 3,
+   "sec": 1,
+   "company": "EM"
+  },
+  {
+   "id": "p3",
+   "name": "ZULSAR",
+   "medal": "Immortal",
+   "mmr": 5600,
+   "pos": 1,
+   "sec": 3,
+   "company": "MCST"
+  },
+  {
+   "id": "p4",
+   "name": "BAT-ORGIL",
+   "medal": "Divine",
+   "mmr": 5360,
+   "pos": 1,
+   "sec": 2,
+   "company": "TPG"
+  },
+  {
+   "id": "p5",
+   "name": "TUVSHUU PP",
+   "medal": "Divine",
+   "mmr": 5150,
+   "pos": 5,
+   "sec": 1,
+   "company": "TPG"
+  },
+  {
+   "id": "p6",
+   "name": "TELMEN",
+   "medal": "Divine",
+   "mmr": 4700,
+   "pos": 5,
+   "sec": 2,
+   "company": "TPG"
+  },
+  {
+   "id": "p7",
+   "name": "TERGEL",
+   "medal": "Divine",
+   "mmr": 4600,
+   "pos": 2,
+   "sec": 3,
+   "company": "TPI"
+  },
+  {
+   "id": "p8",
+   "name": "AMKA",
+   "medal": "Divine",
+   "mmr": 4600,
+   "pos": 3,
+   "sec": 5,
+   "company": "TPG"
+  },
+  {
+   "id": "p9",
+   "name": "TUGULDUR",
+   "medal": "Ancient",
+   "mmr": 4400,
+   "pos": 5,
+   "sec": 4,
+   "company": "TPG"
+  },
+  {
+   "id": "p10",
+   "name": "SERGELEN",
+   "medal": "Ancient",
+   "mmr": 4158,
+   "pos": 5,
+   "sec": 4,
+   "company": "EM"
+  },
+  {
+   "id": "p11",
+   "name": "TEMUULEN",
+   "medal": "Legend",
+   "mmr": 3800,
+   "pos": 4,
+   "sec": 1,
+   "company": "TPG"
+  },
+  {
+   "id": "p12",
+   "name": "LKHA",
+   "medal": "Legend",
+   "mmr": 3600,
+   "pos": 5,
+   "sec": 4,
+   "company": "TPG"
+  },
+  {
+   "id": "p13",
+   "name": "TSENGUUN",
+   "medal": "Legend",
+   "mmr": 3500,
+   "pos": 3,
+   "sec": 4,
+   "company": "TPG"
+  },
+  {
+   "id": "p14",
+   "name": "TAMIR.D",
+   "medal": "Legend",
+   "mmr": 3199,
+   "pos": 2,
+   "sec": 3,
+   "company": "TPG"
+  },
+  {
+   "id": "p15",
+   "name": "BATZOLBOO",
+   "medal": "Legend",
+   "mmr": 3200,
+   "pos": 5,
+   "sec": 4,
+   "company": "EM"
+  },
+  {
+   "id": "p16",
+   "name": "NARANBAATAR",
+   "medal": "Legend",
+   "mmr": 3100,
+   "pos": 2,
+   "sec": 1,
+   "company": "TPG"
+  },
+  {
+   "id": "p17",
+   "name": "MUNKHBOLD (MUMU)",
+   "medal": "Archon",
+   "mmr": 2800,
+   "pos": 5,
+   "sec": 4,
+   "company": "TPG"
+  },
+  {
+   "id": "p18",
+   "name": "ANKHBAATAR",
+   "medal": "Archon",
+   "mmr": 2700,
+   "pos": 2,
+   "sec": 5,
+   "company": "TPG"
+  },
+  {
+   "id": "p19",
+   "name": "SANJAA",
+   "medal": "Archon",
+   "mmr": 2700,
+   "pos": 3,
+   "sec": 2,
+   "company": "TPG"
+  },
+  {
+   "id": "p20",
+   "name": "JAMBALSUREN",
+   "medal": "Archon",
+   "mmr": 2500,
+   "pos": 3,
+   "sec": 4,
+   "company": "TPG"
+  },
+  {
+   "id": "p21",
+   "name": "TSEND-AYUSH",
+   "medal": "Guardian",
+   "mmr": 1500,
+   "pos": 2,
+   "sec": 1,
+   "company": "TPG"
+  },
+  {
+   "id": "p22",
+   "name": "MUNKHZORIG",
+   "medal": "Guardian",
+   "mmr": 1100,
+   "pos": 5,
+   "sec": 3,
+   "company": "TPG"
+  },
+  {
+   "id": "p23",
+   "name": "DASHKA",
+   "medal": "Herald",
+   "mmr": 1000,
+   "pos": 1,
+   "sec": 2,
+   "company": "TPG"
+  },
+  {
+   "id": "p24",
+   "name": "ЭРХЭМБАЯР",
+   "medal": "Herald",
+   "mmr": 600,
+   "pos": 4,
+   "sec": 3,
+   "company": "TPG"
+  },
+  {
+   "id": "p25",
+   "name": "BILGUUN",
+   "medal": "Divine",
+   "mmr": 5000,
+   "pos": 4,
+   "sec": 5,
+   "company": "FP"
+  }
+ ],
+ "nextId": 26,
+ "teamCount": 5,
+ "captains": [
+  "p17",
+  "p18",
+  "p16",
+  "p14",
+  "p19"
+ ],
+ "captainsLocked": true,
+ "captainOrder": [
+  "p17",
+  "p18",
+  "p16",
+  "p14",
+  "p19"
+ ],
+ "phase": "done",
+ "teams": [
+  {
+   "no": 1,
+   "captainId": "p17",
+   "players": [
+    "p17",
+    "p20",
+    "p7",
+    "p13",
+    "p3"
+   ]
+  },
+  {
+   "no": 2,
+   "captainId": "p18",
+   "players": [
+    "p18",
+    "p5",
+    "p15",
+    "p25",
+    "p21"
+   ]
+  },
+  {
+   "no": 3,
+   "captainId": "p16",
+   "players": [
+    "p16",
+    "p22",
+    "p1",
+    "p8",
+    "p10"
+   ]
+  },
+  {
+   "no": 4,
+   "captainId": "p14",
+   "players": [
+    "p14",
+    "p6",
+    "p2",
+    "p12",
+    "p24"
+   ]
+  },
+  {
+   "no": 5,
+   "captainId": "p19",
+   "players": [
+    "p19",
+    "p4",
+    "p11",
+    "p23",
+    "p9"
+   ]
+  }
+ ],
+ "order": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  5,
+  4,
+  3,
+  2,
+  1,
+  1,
+  2,
+  3,
+  4,
+  5,
+  5,
+  4,
+  3,
+  2,
+  1
+ ],
+ "pickIndex": 20,
+ "history": [
+  {
+   "team": 1,
+   "playerId": "p20",
+   "by": "admin",
+   "at": 1794913200000
+  },
+  {
+   "team": 2,
+   "playerId": "p5",
+   "by": "admin",
+   "at": 1794913201000
+  },
+  {
+   "team": 3,
+   "playerId": "p22",
+   "by": "admin",
+   "at": 1794913202000
+  },
+  {
+   "team": 4,
+   "playerId": "p6",
+   "by": "admin",
+   "at": 1794913203000
+  },
+  {
+   "team": 5,
+   "playerId": "p4",
+   "by": "admin",
+   "at": 1794913204000
+  },
+  {
+   "team": 5,
+   "playerId": "p11",
+   "by": "admin",
+   "at": 1794913205000
+  },
+  {
+   "team": 4,
+   "playerId": "p2",
+   "by": "admin",
+   "at": 1794913206000
+  },
+  {
+   "team": 3,
+   "playerId": "p1",
+   "by": "admin",
+   "at": 1794913207000
+  },
+  {
+   "team": 2,
+   "playerId": "p15",
+   "by": "admin",
+   "at": 1794913208000
+  },
+  {
+   "team": 1,
+   "playerId": "p7",
+   "by": "admin",
+   "at": 1794913209000
+  },
+  {
+   "team": 1,
+   "playerId": "p13",
+   "by": "admin",
+   "at": 1794913210000
+  },
+  {
+   "team": 2,
+   "playerId": "p25",
+   "by": "admin",
+   "at": 1794913211000
+  },
+  {
+   "team": 3,
+   "playerId": "p8",
+   "by": "admin",
+   "at": 1794913212000
+  },
+  {
+   "team": 4,
+   "playerId": "p12",
+   "by": "admin",
+   "at": 1794913213000
+  },
+  {
+   "team": 5,
+   "playerId": "p23",
+   "by": "admin",
+   "at": 1794913214000
+  },
+  {
+   "team": 5,
+   "playerId": "p9",
+   "by": "admin",
+   "at": 1794913215000
+  },
+  {
+   "team": 4,
+   "playerId": "p24",
+   "by": "admin",
+   "at": 1794913216000
+  },
+  {
+   "team": 3,
+   "playerId": "p10",
+   "by": "admin",
+   "at": 1794913217000
+  },
+  {
+   "team": 2,
+   "playerId": "p21",
+   "by": "admin",
+   "at": 1794913218000
+  },
+  {
+   "team": 1,
+   "playerId": "p3",
+   "by": "admin",
+   "at": 1794913219000
+  }
+ ],
+ "seedKeys": [
+  "TEMUULEN|Immortal|6000",
+  "BILGUUN|Immortal|5950",
+  "ZULSAR|Immortal|5600",
+  "BAT-ORGIL|Divine|5360",
+  "TUVSHUU PP|Divine|5150",
+  "TELMEN|Divine|4700",
+  "TERGEL|Divine|4600",
+  "AMKA|Divine|4600",
+  "TUGULDUR|Ancient|4400",
+  "SERGELEN|Ancient|4158",
+  "TEMUULEN|Legend|3800",
+  "LKHA|Legend|3600",
+  "TSENGUUN|Legend|3500",
+  "TAMIR.D|Legend|3300",
+  "BATZOLBOO|Legend|3200",
+  "NARANBAATAR|Legend|3100",
+  "MUNKHBOLD (MUMU)|Archon|2800",
+  "ANKHBAATAR|Archon|2700",
+  "SANJAA|Archon|2700",
+  "JAMBALSUREN|Archon|2500",
+  "TSEND-AYUSH|Guardian|1500",
+  "MUNKHZORIG|Guardian|1100",
+  "DASHKA|Herald|1000",
+  "ЭРХЭМБАЯР|Herald|600",
+  "BILGUUN|Divine|5000"
+ ],
+ "final": true
+}
