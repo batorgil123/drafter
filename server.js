@@ -22,6 +22,7 @@ function freshState() {
     teamCount: 5,
     captains: [],          // player ids
     captainsLocked: false,
+    captainOrder: [],      // random team order of captains (index 0 = Team 1), set on lock
     phase: 'setup',        // setup | draft | done
     teams: [],             // [{no, captainId, players:[ids]}]
     order: [],             // team numbers in pick order
@@ -52,6 +53,12 @@ function verify(token) {
 const clean = (s, n = 40) => String(s || '').trim().slice(0, n);
 const getP = (id) => state.players.find((p) => p.id === id);
 const pickedIds = () => new Set(state.teams.flatMap((t) => t.players));
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
 
 function buildOrder(teamCount, poolSize) {
   const total = Math.min(poolSize, teamCount * 4);
@@ -101,13 +108,17 @@ const actions = {
   lockCaptains() {
     if (state.captains.length !== state.teamCount) throw new Error(`Яг ${state.teamCount} ахлагч сонгоно уу`);
     state.captainsLocked = true;
+    state.captainOrder = shuffle(state.captains); // random: index 0 = Team 1
   },
   startDraft() {
     if (state.phase !== 'setup') throw new Error('Драфт аль хэдийн эхэлсэн');
     if (!state.captainsLocked) throw new Error('Эхлээд ахлагчдаа хадгална уу');
     if (state.players.length < 10) throw new Error('Дор хаяж 10 тоглогч хэрэгтэй');
-    // lowest-MMR captain picks first (Team 1)
-    const caps = state.captains.map(getP).sort((x, y) => x.mmr - y.mmr);
+    // team numbers decided randomly when captains were locked
+    const valid = state.captainOrder && state.captainOrder.length === state.captains.length &&
+      state.captains.every((c) => state.captainOrder.includes(c));
+    if (!valid) state.captainOrder = shuffle(state.captains);
+    const caps = state.captainOrder.map(getP);
     state.teams = caps.map((c, i) => ({ no: i + 1, captainId: c.id, players: [c.id] }));
     state.order = buildOrder(state.teamCount, state.players.length - caps.length);
     state.pickIndex = 0; state.history = []; state.phase = state.order.length ? 'draft' : 'done';

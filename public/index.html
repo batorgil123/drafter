@@ -46,6 +46,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:8px;color:var(--text)}
 .pl .n{font-weight:700;font-size:17px;display:flex;align-items:center;gap:6px;letter-spacing:.2px}
 .pl .n svg{color:var(--gold)}
 .pl .m{color:var(--mute);font-size:13.5px}.pl .m b{color:var(--text)}
+.tn{display:inline-block;font:700 11px/1 Inter,sans-serif;padding:3px 7px;border-radius:5px;background:var(--gold);color:#1a1405;vertical-align:middle}
 .co{display:inline-block;font:600 10.5px/1 Inter,sans-serif;letter-spacing:.4px;padding:3px 6px;border-radius:5px;border:1px solid var(--line);background:#1b2027;color:#cfd5dc;vertical-align:middle}
 .acts{display:flex;gap:4px;flex-shrink:0}
 .ib{width:34px;height:34px;display:grid;place-items:center;background:transparent;border-radius:8px;color:#d7dbe0}
@@ -116,7 +117,7 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
   <div class="muted" style="margin-top:4px">Дараах 3 алхмыг гүйцэтгэнэ үү.</div>
   <div class="steps">
    <div class="step" id="s1"><div class="t"><h3>1. Тоглогч нэмэх</h3><span class="c" id="s1c"></span></div><p>“Тоглогч нэмэх” товчоор хамт олны нэр, медаль, MMR, байрлалыг бүртгэнэ. Дор хаяж 10 хэрэгтэй.</p></div>
-   <div class="step" id="s2"><div class="t"><h3>2. <span class="tc">5</span> ахлагч сонгох</h3><span class="c" id="s2c"></span></div><p>Тоглогчийн хажуу дахь титэм дээр дарж яг <span class="tc">5</span> ахлагч сонгоод “Ахлагч хадгалах” дарна.</p></div>
+   <div class="step" id="s2"><div class="t"><h3>2. <span class="tc">5</span> ахлагч сонгох</h3><span class="c" id="s2c"></span></div><p>Тоглогчийн хажуу дахь титэм дээр дарж яг <span class="tc">5</span> ахлагч сонгоод “Ахлагч хадгалах” дарна. Ахлагч бүр аль баг болохыг систем санамсаргүйгээр (random) шийднэ.</p></div>
    <div class="step" id="s3"><div class="t"><h3>3. Драфт эхлүүлэх</h3></div><p>Snake дараалал: 1→2→3→4→5→5→4→3→2→1… Ахлагч бүр өөрийн аккаунтаар нэвтэрч ээлжээрээ “Сонгох” дарна.</p></div>
   </div>
  </section>
@@ -231,13 +232,14 @@ function render(prev){
  const sorted=[...S.players].sort((a,b)=>b.mmr-a.mmr);
  $('#players').innerHTML=sorted.map(p=>{
   const cap=S.phase==='setup'?S.captains.includes(p.id):S.teams.some(t=>t.captainId===p.id);
+  const tno=setup&&S.captainsLocked&&S.captainOrder?S.captainOrder.indexOf(p.id)+1:0;
   let acts='';
   if(isAdmin()){
    if(setup)acts+=`<button class="ib ${cap?'capon':''}" title="Ахлагч" data-cap="${p.id}">${crown(20)}</button>`;
    acts+=`<button class="ib" title="Засах" data-edit="${p.id}"><svg width="18" height="18"><use href="#i-edit"/></svg></button>`;
    if(setup)acts+=`<button class="ib del" title="Устгах" data-del="${p.id}"><svg width="18" height="18"><use href="#i-trash"/></svg></button>`;
   }
-  return `<div class="pl ${cap?'cap':''}"><div><div class="n">${cap?crown(18):''}${esc(p.name)} ${co(p)}</div><div class="m">${meta(p)}</div></div><div class="acts">${acts}</div></div>`;
+  return `<div class="pl ${cap?'cap':''}"><div><div class="n">${cap?crown(18):''}${esc(p.name)} ${co(p)}${tno?` <span class="tn">Баг ${tno}</span>`:''}</div><div class="m">${meta(p)}</div></div><div class="acts">${acts}</div></div>`;
  }).join('');
  if(!setup)renderDraft(prev);
 }
