@@ -86,6 +86,24 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1c2128;border:1px solid var(--line);padding:10px 16px;border-radius:10px;opacity:0;transition:.25s;z-index:60;pointer-events:none}
 #toast.show{opacity:1}#toast.bad{border-color:var(--red)}
 .hidden{display:none!important}
+.rounds{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rounds h3{font-size:18px;margin-bottom:8px}
+.mday{border:1px solid var(--line);border-radius:12px;background:var(--card2);padding:10px 12px;margin-bottom:10px}
+.mday .dh{display:flex;justify-content:space-between;font-size:13px;color:var(--mute);margin-bottom:4px}
+.match{display:grid;grid-template-columns:28px 1fr 26px 1fr;align-items:center;gap:6px;padding:7px 0;border-top:1px solid #1c2128;font-size:14px}
+.match:first-of-type{border-top:0}
+.match .no{color:var(--mute);font-size:12px}.match .vs{color:var(--mute);font-size:12px;text-align:center}
+.match .r{color:#7fd39b}.match .d{color:#ff8a7e;text-align:right}
+.match small{display:block;color:var(--mute);font-size:11.5px}
+.match .d small{text-align:right}
+.tier{margin-bottom:16px}
+.pl.capd{opacity:.45;border-style:dashed;border-color:var(--gold);cursor:not-allowed}
+.pl.capd .n svg{color:var(--gold)}
+.capl{font-size:12px;font-weight:700;color:var(--gold);border:1px solid var(--gold);border-radius:6px;padding:5px 9px;flex-shrink:0}
+.tier .th{display:flex;align-items:baseline;gap:10px;margin:0 0 8px;flex-wrap:wrap}
+.tier .th h3{font-size:17px;color:var(--gold)}
+.tier .th span{color:var(--mute);font-size:13px}
+@media(max-width:980px){.rounds{grid-template-columns:1fr}}
 @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}.teams,.teams.c4{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:1fr}}
 @media(max-width:620px){.grid,.teams,.teams.c4{grid-template-columns:1fr}header h1{font-size:24px}}
 </style>
@@ -135,7 +153,13 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
   <div class="order" id="order"></div>
   <div class="teams" id="teams"></div>
   <h3 style="font-size:18px;margin-bottom:10px">Сонгогдоогүй тоглогчид (<span id="poolN">0</span>)</h3>
-  <div class="grid" id="pool"></div>
+  <div id="pool"></div>
+ </section>
+
+ <section class="card hidden" id="schedCard">
+  <div class="ctitle"><svg width="24" height="24"><use href="#i-shield"/></svg><h2>Тоглолтын хуваарь · 2 тойрог</h2></div>
+  <div class="muted" style="margin:4px 0 16px;font-size:13.5px" id="schedSub"></div>
+  <div class="rounds" id="sched"></div>
  </section>
 
  <section class="card" id="playersCard">
@@ -148,7 +172,7 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
     <button class="btn red" id="startBtn"><svg width="18" height="18"><use href="#i-swords"/></svg>Драфт эхлүүлэх</button>
    </div>
   </div>
-  <div class="grid" id="players"></div>
+  <div id="players"></div>
  </section>
 </div>
 
@@ -229,9 +253,35 @@ function render(prev){
  $('#startBtn').disabled=!S.captainsLocked||nP<10;
  // players list
  $('#pc').textContent=nP;
- const sorted=[...S.players].sort((a,b)=>b.mmr-a.mmr);
- $('#players').innerHTML=sorted.map(p=>{
-  const cap=S.phase==='setup'?S.captains.includes(p.id):S.teams.some(t=>t.captainId===p.id);
+ $('#players').innerHTML=`<div class="grid">${byMmr(S.players).map(plCard).join('')}</div>`;
+ $('#schedCard').classList.toggle('hidden',setup);
+ if(!setup){renderDraft(prev);renderSchedule()}
+}
+
+// Draft-time tiers: ALL players ranked by MMR and cut into groups of <teamCount> (5 by default).
+// Captains keep their tier slot and are shown there as disabled cards (not pickable),
+// so a tier can have only 4 or 3 pickable people.
+// Used only for the draft pool; the setup list stays a plain MMR-sorted list.
+const byMmr=l=>[...l].sort((a,b)=>b.mmr-a.mmr||(+a.id.slice(1))-(+b.id.slice(1)));
+const capIds=()=>new Set(S.phase==='setup'?S.captains:S.teams.map(t=>t.captainId));
+function tierOf(){const m={};byMmr(S.players).forEach((p,i)=>m[p.id]=Math.floor(i/S.teamCount)+1);return m}
+function tiersHtml(list,card,emptyMsg){
+ const tier=tierOf(),caps=capIds(),groups={};
+ byMmr(list).filter(p=>!caps.has(p.id)).forEach(p=>(groups[tier[p.id]]=groups[tier[p.id]]||[]).push(p));
+ const keys=Object.keys(groups).map(Number).sort((a,b)=>a-b); // tiers that still have pickable players
+ if(!keys.length)return emptyMsg;
+ return keys.map(k=>{
+  const g=groups[k],kc=byMmr(S.players.filter(p=>caps.has(p.id)&&tier[p.id]===k));
+  const all=byMmr([...g,...kc]),hi=all[0].mmr,lo=all[all.length-1].mmr;
+  return `<div class="tier"><div class="th"><h3>Tier ${k}</h3><span>${g.length} сонгох боломжтой${kc.length?` · ${kc.length} ахлагч`:''} · ${hi===lo?hi:lo+'–'+hi} MMR</span></div><div class="grid">${all.map(p=>caps.has(p.id)?capCard(p):card(p)).join('')}</div></div>`}).join('');
+}
+function capCard(p){
+ const t=S.teams.find(t=>t.captainId===p.id);
+ return `<div class="pl capd" title="Ахлагч — сонгох боломжгүй"><div><div class="n">${crown(18)}${esc(p.name)} ${co(p)}${t?` <span class="tn">Баг ${t.no}</span>`:''}</div><div class="m">${meta(p)}</div></div><span class="capl">Ахлагч</span></div>`;
+}
+function plCard(p){
+  const setup=S.phase==='setup';
+  const cap=capIds().has(p.id);
   const tno=setup&&S.captainsLocked&&S.captainOrder?S.captainOrder.indexOf(p.id)+1:0;
   let acts='';
   if(isAdmin()){
@@ -240,8 +290,29 @@ function render(prev){
    if(setup)acts+=`<button class="ib del" title="Устгах" data-del="${p.id}"><svg width="18" height="18"><use href="#i-trash"/></svg></button>`;
   }
   return `<div class="pl ${cap?'cap':''}"><div><div class="n">${cap?crown(18):''}${esc(p.name)} ${co(p)}${tno?` <span class="tn">Баг ${tno}</span>`:''}</div><div class="m">${meta(p)}</div></div><div class="acts">${acts}</div></div>`;
- }).join('');
- if(!setup)renderDraft(prev);
+}
+
+// Double round-robin (circle method). Odd team count → one team rests each matchday.
+// Round 2 repeats round 1 with sides swapped, so every pair plays once as Radiant and once as Dire.
+function roundRobin(n){
+ const t=Array.from({length:n},(_,i)=>i+1);if(n%2)t.push(0);
+ const m=t.length,days=[];let a=[...t];
+ for(let d=0;d<m-1;d++){
+  const games=[];let rest=null;
+  for(let i=0;i<m/2;i++){const x=a[i],y=a[m-1-i];if(!x||!y){rest=x||y;continue}games.push((d+i)%2?[y,x]:[x,y])}
+  days.push({games,rest});a=[a[0],a[m-1],...a.slice(1,m-1)];
+ }
+ return [days,days.map(d=>({games:d.games.map(([x,y])=>[y,x]),rest:d.rest}))];
+}
+function renderSchedule(){
+ const n=S.teamCount,rounds=roundRobin(n);
+ const cap=no=>{const t=S.teams.find(t=>t.no===no);const c=t&&P(t.captainId);return c?esc(c.name):''};
+ const total=rounds.reduce((s,r)=>s+r.reduce((x,d)=>x+d.games.length,0),0);
+ $('#schedSub').textContent=`${n} баг · баг бүр хоорондоо 2 удаа тоглоно · нийт ${total} тоглолт`+(n%2?' · өдөр бүр нэг баг амарна':'')+' · 2-р тойрогт талууд солигдоно';
+ let no=0,day=0;
+ $('#sched').innerHTML=rounds.map((r,ri)=>`<div><h3>${ri+1}-р тойрог</h3>${r.map(d=>{day++;
+  return `<div class="mday"><div class="dh"><span>Тоглолтын өдөр ${day}</span>${d.rest?`<span>Амрах: Баг ${d.rest}</span>`:''}</div>${d.games.map(([x,y])=>{no++;
+   return `<div class="match"><span class="no">#${no}</span><span class="r">Баг ${x}<small>${cap(x)} · Radiant</small></span><span class="vs">vs</span><span class="d">Баг ${y}<small>Dire · ${cap(y)}</small></span></div>`}).join('')}</div>`}).join('')}</div>`).join('');
 }
 
 function renderDraft(prev){
@@ -269,9 +340,9 @@ function renderDraft(prev){
   return `<div class="team ${t.no===cur&&!done?'turn':''} ${ME&&ME.team===t.no?'me':''}"><h3><span>Баг ${t.no}</span><span class="muted" style="font-size:14px">${ps.length}/5</span></h3><div class="avg">Нийт ${total} · Дундаж ${avg} MMR</div>${slots}</div>`;
  }).join('');
  const picked=new Set(S.teams.flatMap(t=>t.players));
- const pool=S.players.filter(p=>!picked.has(p.id)).sort((a,b)=>b.mmr-a.mmr);
+ const pool=S.players.filter(p=>!picked.has(p.id));
  $('#poolN').textContent=pool.length;
- $('#pool').innerHTML=pool.length?pool.map(p=>`<div class="pl"><div><div class="n">${esc(p.name)} ${co(p)}</div><div class="m">${meta(p)}</div></div>${done?'':`<button class="pick" data-pick="${p.id}" ${myTurn?'':'disabled'}>Сонгох</button>`}</div>`).join(''):'<div class="muted">Бүх тоглогч сонгогдсон.</div>';
+ $('#pool').innerHTML=tiersHtml(pool,p=>`<div class="pl"><div><div class="n">${esc(p.name)} ${co(p)}</div><div class="m">${meta(p)}</div></div>${done?'':`<button class="pick" data-pick="${p.id}" ${myTurn?'':'disabled'}>Сонгох</button>`}</div>`,'<div class="muted">Бүх тоглогч сонгогдсон.</div>');
 }
 
 // ---- events ----

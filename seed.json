@@ -21,5 +21,7 @@
  {"name":"JAMBALSUREN","medal":"Archon","mmr":2500,"pos":3,"sec":4},
  {"name":"TSEND-AYUSH","medal":"Guardian","mmr":1500,"pos":2,"sec":1},
  {"name":"MUNKHZORIG","medal":"Guardian","mmr":1100,"pos":5,"sec":3},
- {"name":"DASHKA","medal":"Herald","mmr":1000,"pos":1,"sec":2}
+ {"name":"DASHKA","medal":"Herald","mmr":1000,"pos":1,"sec":2},
+ {"name":"ЭРХЭМБАЯР","medal":"Herald","mmr":600,"pos":4,"sec":3},
+ {"name":"BILGUUN","medal":"Divine","mmr":5000,"pos":4,"sec":5}
 ]

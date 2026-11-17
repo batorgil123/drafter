@@ -15,9 +15,11 @@ const ACCOUNTS = process.env.ACCOUNTS_JSON
 const SEED = JSON.parse(fs.readFileSync(path.join(__dirname, 'seed.json'), 'utf8'));
 
 // ---------- state ----------
+const seedKey = (p) => `${p.name}|${p.medal}|${p.mmr}`;
 function freshState() {
   return {
     players: SEED.map((p, i) => ({ id: 'p' + (i + 1), ...p })),
+    seedKeys: SEED.map(seedKey), // seed entries already applied
     nextId: SEED.length + 1,
     teamCount: 5,
     captains: [],          // player ids
@@ -37,6 +39,20 @@ function save() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => fs.writeFile(DATA_FILE, JSON.stringify(state), () => {}), 200);
 }
+
+// New seed.json entries are added to an existing data.json on startup (only while in setup).
+// Each seed entry is applied once, so a player the admin deleted does not come back.
+(function mergeSeed() {
+  if (!state.seedKeys) state.seedKeys = state.players.map(seedKey); // older data.json
+  if (state.phase !== 'setup') return;
+  const applied = new Set(state.seedKeys);
+  const added = SEED.filter((p) => !applied.has(seedKey(p)));
+  for (const p of added) {
+    state.players.push({ id: 'p' + state.nextId++, ...p });
+    state.seedKeys.push(seedKey(p));
+  }
+  if (added.length) { save(); console.log(`Added ${added.length} new player(s) from seed.json`); }
+})();
 
 // ---------- auth (stateless signed tokens) ----------
 const sign = (u) => crypto.createHmac('sha256', SECRET).update(u.username + ':' + u.password).digest('hex').slice(0, 32);
