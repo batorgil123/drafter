@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Драфт самбар — Office Dota 2 Team Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d10;--card:#111418;--card2:#14181d;--line:#262b33;--text:#eef0f3;--mute:#9aa3ad;--red:#e5483b;--red2:#c53a2f;--gold:#e8b84a;--green:#3fb26b}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 500px at 50% -120px,#4a1612 0%,rgba(74,22,18,.35) 35%,transparent 70%),var(--bg);color:var(--text);font:15px/1.45 Inter,system-ui,sans-serif;min-height:100vh}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
+h1,h2,h3,.disp{font-family:Oswald,Impact,sans-serif;text-transform:uppercase;letter-spacing:.3px;margin:0}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+header h1{font-size:30px}header .sub{color:var(--mute);margin-top:2px}
+.hright{display:flex;gap:10px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:#666;display:inline-block;margin-right:6px}
+.dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px;color:var(--mute);display:flex;align-items:center}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.015),transparent),var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:22px}
+.ctitle{display:flex;align-items:center;gap:10px;font-size:22px}
+.ctitle svg{color:var(--red)}
+.muted{color:var(--mute)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.step{border:1px solid var(--line);border-radius:12px;padding:14px 14px;background:var(--card2)}
+.step.active{border-color:#2f7a4c;background:linear-gradient(180deg,#123222,#0f1f17)}
+.step.done{opacity:.6}
+.step .t{display:flex;justify-content:space-between;align-items:baseline}
+.step h3{font-size:18px}.step .c{color:var(--mute);font-size:13px}
+.step p{margin:6px 0 0;color:var(--mute);font-size:14px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.phead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;color:var(--text)}
+.btn{padding:9px 16px;font-weight:600;display:inline-flex;gap:8px;align-items:center;background:#1b2027;border:1px solid var(--line)}
+.btn:hover{background:#222832}
+.btn.red{background:var(--red);border-color:var(--red)}.btn.red:hover{background:var(--red2)}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{padding:9px 14px;background:#0f1216;border-radius:0;font-weight:600}
+.seg button.on{background:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pl{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card2)}
+.pl.cap{border-color:var(--gold)}
+.pl .n{font-weight:700;font-size:17px;display:flex;align-items:center;gap:6px;letter-spacing:.2px}
+.pl .n svg{color:var(--gold)}
+.pl .m{color:var(--mute);font-size:13.5px}.pl .m b{color:var(--text)}
+.co{display:inline-block;font:600 10.5px/1 Inter,sans-serif;letter-spacing:.4px;padding:3px 6px;border-radius:5px;border:1px solid var(--line);background:#1b2027;color:#cfd5dc;vertical-align:middle}
+.acts{display:flex;gap:4px;flex-shrink:0}
+.ib{width:34px;height:34px;display:grid;place-items:center;background:transparent;border-radius:8px;color:#d7dbe0}
+.ib:hover{background:#1e242c}.ib.del{color:var(--red)}
+.ib.capon{background:var(--red);color:#fff}
+.banner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;border-radius:12px;border:1px solid var(--line);background:var(--card2);margin-bottom:14px}
+.banner.mine{border-color:var(--green);background:linear-gradient(90deg,#123222,#0f1a14);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 4px rgba(63,178,107,.15)}}
+.banner .big{font-family:Oswald,Impact,sans-serif;font-size:22px;text-transform:uppercase}
+.order{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 18px}
+.order span{min-width:30px;text-align:center;padding:4px 6px;border-radius:6px;background:#161a20;border:1px solid var(--line);font-size:12px;color:var(--mute)}
+.order span.past{opacity:.35}.order span.now{background:var(--red);color:#fff;border-color:var(--red);font-weight:700}
+.teams{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:22px}
+.teams.c4{grid-template-columns:repeat(4,1fr)}
+.team{border:1px solid var(--line);border-radius:12px;background:var(--card2);padding:12px;min-height:220px}
+.team.turn{border-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
+.team.me{background:linear-gradient(180deg,#1a1410,var(--card2))}
+.team h3{font-size:18px;display:flex;justify-content:space-between}
+.team .avg{color:var(--mute);font-size:12px;margin-bottom:8px}
+.slot{padding:7px 8px;border-radius:8px;background:#0e1115;margin-top:6px;font-size:13.5px}
+.slot b{display:block;font-size:14px}.slot small{color:var(--mute)}
+.slot.capt b{color:var(--gold)}
+.slot.empty{border:1px dashed var(--line);background:transparent;color:#4b525c;text-align:center}
+.slot.new{animation:flash 1.2s}
+@keyframes flash{0%{background:var(--red)}100%{background:#0e1115}}
+.pick{background:var(--red);padding:7px 12px;font-weight:700;font-size:13px}
+.pick:disabled{background:#2a2f37;color:#7b838d}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.open{display:flex}
+.mbox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;width:100%;max-width:420px}
+.mbox h2{font-size:22px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:#0c0f13;color:var(--text);font:inherit}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.err{color:#ff7a6e;font-size:13px;min-height:18px;margin-top:8px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1c2128;border:1px solid var(--line);padding:10px 16px;border-radius:10px;opacity:0;transition:.25s;z-index:60;pointer-events:none}
+#toast.show{opacity:1}#toast.bad{border-color:var(--red)}
+.hidden{display:none!important}
+@media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}.teams,.teams.c4{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:1fr}}
+@media(max-width:620px){.grid,.teams,.teams.c4{grid-template-columns:1fr}header h1{font-size:24px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+ <symbol id="i-crown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l4.5 5L12 4l5.5 8L22 7l-2 12H4L2 7z"/></symbol>
+ <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></symbol>
+ <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></symbol>
+ <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+ <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 3.1a4 4 0 0 1 0 7.8M21 21v-2a4 4 0 0 0-3-3.9"/></symbol>
+ <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+ <symbol id="i-swords" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 6.5 14 2h3v3l-4.5 4.5M5 14l4 4M7 17l-3 3M3 19l2 2"/></symbol>
+</svg>
+
+<div class="wrap">
+ <header>
+  <div><h1>Office Dota 2 Team Builder</h1><div class="sub">Оффисын тэмцээн · <span id="subTeams">5</span> баг × 5 хүртэл тоглогч · шууд шинэчлэгдэх snake драфт</div></div>
+  <div class="hright">
+   <span class="pill"><span class="dot" id="conn"></span><span id="connTxt">Холбогдож байна…</span></span>
+   <span class="pill hidden" id="meChip"></span>
+   <button class="btn" id="loginBtn">Нэвтрэх</button>
+   <button class="btn ghost hidden" id="logoutBtn">Гарах</button>
+  </div>
+ </header>
+
+ <section class="card" id="howto">
+  <div class="ctitle"><svg width="24" height="24"><use href="#i-shield"/></svg><h2>Хэрхэн эхлэх вэ</h2></div>
+  <div class="muted" style="margin-top:4px">Дараах 3 алхмыг гүйцэтгэнэ үү.</div>
+  <div class="steps">
+   <div class="step" id="s1"><div class="t"><h3>1. Тоглогч нэмэх</h3><span class="c" id="s1c"></span></div><p>“Тоглогч нэмэх” товчоор хамт олны нэр, медаль, MMR, байрлалыг бүртгэнэ. Дор хаяж 10 хэрэгтэй.</p></div>
+   <div class="step" id="s2"><div class="t"><h3>2. <span class="tc">5</span> ахлагч сонгох</h3><span class="c" id="s2c"></span></div><p>Тоглогчийн хажуу дахь титэм дээр дарж яг <span class="tc">5</span> ахлагч сонгоод “Ахлагч хадгалах” дарна.</p></div>
+   <div class="step" id="s3"><div class="t"><h3>3. Драфт эхлүүлэх</h3></div><p>Snake дараалал: 1→2→3→4→5→5→4→3→2→1… Ахлагч бүр өөрийн аккаунтаар нэвтэрч ээлжээрээ “Сонгох” дарна.</p></div>
+  </div>
+ </section>
+
+ <section class="card hidden" id="draft">
+  <div class="phead">
+   <div class="ctitle"><svg width="24" height="24"><use href="#i-swords"/></svg><h2 id="draftTitle">Драфт самбар</h2></div>
+   <div class="toolbar adminOnly">
+    <button class="btn" id="undoBtn">↶ Буцаах</button>
+    <button class="btn" id="resetDraftBtn">Драфт дахин эхлүүлэх</button>
+   </div>
+  </div>
+  <div class="banner" id="banner"></div>
+  <div class="muted" style="font-size:13px">Сонголтын дараалал</div>
+  <div class="order" id="order"></div>
+  <div class="teams" id="teams"></div>
+  <h3 style="font-size:18px;margin-bottom:10px">Сонгогдоогүй тоглогчид (<span id="poolN">0</span>)</h3>
+  <div class="grid" id="pool"></div>
+ </section>
+
+ <section class="card" id="playersCard">
+  <div class="phead">
+   <div class="ctitle"><svg width="24" height="24"><use href="#i-users"/></svg><h2>Тоглогчид (<span id="pc">0</span>)</h2></div>
+   <div class="toolbar adminOnly" id="setupTools">
+    <button class="btn red" id="addBtn"><svg width="16" height="16"><use href="#i-plus"/></svg>Тоглогч нэмэх</button>
+    <div class="seg"><button data-n="4">4 баг</button><button data-n="5">5 баг</button></div>
+    <button class="btn" id="lockBtn"><svg width="18" height="18"><use href="#i-crown"/></svg><span id="lockTxt">Ахлагч хадгалах</span></button>
+    <button class="btn red" id="startBtn"><svg width="18" height="18"><use href="#i-swords"/></svg>Драфт эхлүүлэх</button>
+   </div>
+  </div>
+  <div class="grid" id="players"></div>
+ </section>
+</div>
+
+<div class="modal" id="loginM"><form class="mbox" id="loginF">
+ <h2>Нэвтрэх</h2>
+ <label>Нэвтрэх нэр</label><input name="username" autocomplete="username" placeholder="team1 / admin" required>
+ <label>Нууц үг</label><input name="password" type="password" autocomplete="current-password" required>
+ <div class="err" id="loginErr"></div>
+ <div class="mfoot"><button type="button" class="btn ghost" data-close>Болих</button><button class="btn red">Нэвтрэх</button></div>
+</form></div>
+
+<div class="modal" id="playerM"><form class="mbox" id="playerF">
+ <h2 id="pmTitle">Тоглогч нэмэх</h2>
+ <input type="hidden" name="id">
+ <label>Нэр</label><input name="name" required maxlength="40">
+ <label>Компани</label><select name="company" required></select>
+ <div class="row2">
+  <div><label>Медаль</label><select name="medal"></select></div>
+  <div><label>MMR</label><input name="mmr" type="number" min="0" max="15000" required></div>
+ </div>
+ <div class="row2">
+  <div><label>Үндсэн байрлал</label><select name="pos"></select></div>
+  <div><label>Хоёрдогч байрлал</label><select name="sec"></select></div>
+ </div>
+ <div class="err" id="playerErr"></div>
+ <div class="mfoot"><button type="button" class="btn ghost" data-close>Болих</button><button class="btn red">Хадгалах</button></div>
+</form></div>
+<div id="toast"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const ROLES={1:'Керри',2:'Мид',3:'Оффлэйн',4:'Ровер',5:'Хард саппорт'};
+const COMPANIES=['TPG','TPI','EM','MCST'];
+const MEDALS=['Herald','Guardian','Crusader','Archon','Legend','Ancient','Divine','Immortal'];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let S=null, ME=null, lastPicks=0;
+let token=null; try{token=localStorage.getItem('sd_token')}catch(e){}
+
+const socket=io({auth:{token}});
+socket.on('connect',()=>{$('#conn').classList.add('on');$('#connTxt').textContent='Шууд холбогдсон'});
+socket.on('disconnect',()=>{$('#conn').classList.remove('on');$('#connTxt').textContent='Холболт тасарсан…'});
+socket.on('me',m=>{ME=m;render()});
+socket.on('state',s=>{const prev=S;S=s;render(prev)});
+
+function toast(msg,bad){const t=$('#toast');t.textContent=msg;t.className=bad?'show bad':'show';clearTimeout(t._t);t._t=setTimeout(()=>t.className='',2600)}
+function act(type,data){return new Promise(r=>socket.emit('action',{type,data},res=>{if(res&&res.error)toast(res.error,true);r(res)}))}
+
+const isAdmin=()=>ME&&ME.role==='admin';
+const P=id=>S.players.find(p=>p.id===id);
+const meta=p=>`${esc(p.medal)} · <b>${p.mmr}</b> MMR · ${p.pos} · ${ROLES[p.pos]} / P${p.sec}`;
+const co=p=>p.company?`<span class="co">${esc(p.company)}</span>`:'';
+const crown=(w=18)=>`<svg width="${w}" height="${w}"><use href="#i-crown"/></svg>`;
+
+function render(prev){
+ if(!S)return;
+ document.querySelectorAll('.adminOnly').forEach(e=>e.classList.toggle('hidden',!isAdmin()));
+ $('#loginBtn').classList.toggle('hidden',!!ME);$('#logoutBtn').classList.toggle('hidden',!ME);
+ const chip=$('#meChip');chip.classList.toggle('hidden',!ME);
+ if(ME)chip.innerHTML=ME.role==='admin'?'Админ':`Баг ${ME.team}-ийн ахлагч`;
+ $('#connTxt').textContent=socket.connected?`Шууд · ${S.online} үзэж байна`:'Холболт тасарсан…';
+ $('#subTeams').textContent=S.teamCount;
+ document.querySelectorAll('.tc').forEach(e=>e.textContent=S.teamCount);
+ const setup=S.phase==='setup';
+ $('#howto').classList.toggle('hidden',!setup);
+ $('#draft').classList.toggle('hidden',setup);
+ $('#playersCard').classList.toggle('hidden',!setup);
+ $('#setupTools').classList.toggle('hidden',!isAdmin()||!setup);
+ // steps
+ const nP=S.players.length,nC=S.captains.length;
+ $('#s1c').textContent=`${nP}/10+`;$('#s2c').textContent=`${nC}/${S.teamCount}`;
+ const step=nP<10?1:!S.captainsLocked?2:3;
+ ['s1','s2','s3'].forEach((id,i)=>{$('#'+id).className='step'+(i+1===step?' active':i+1<step?' done':'')});
+ // toolbar
+ document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',+b.dataset.n===S.teamCount));
+ $('#lockTxt').textContent=S.captainsLocked?`Ахлагч хадгалсан ✓`:`Ахлагч хадгалах (${nC}/${S.teamCount})`;
+ $('#lockBtn').disabled=nC!==S.teamCount||S.captainsLocked;
+ $('#startBtn').disabled=!S.captainsLocked||nP<10;
+ // players list
+ $('#pc').textContent=nP;
+ const sorted=[...S.players].sort((a,b)=>b.mmr-a.mmr);
+ $('#players').innerHTML=sorted.map(p=>{
+  const cap=S.phase==='setup'?S.captains.includes(p.id):S.teams.some(t=>t.captainId===p.id);
+  let acts='';
+  if(isAdmin()){
+   if(setup)acts+=`<button class="ib ${cap?'capon':''}" title="Ахлагч" data-cap="${p.id}">${crown(20)}</button>`;
+   acts+=`<button class="ib" title="Засах" data-edit="${p.id}"><svg width="18" height="18"><use href="#i-edit"/></svg></button>`;
+   if(setup)acts+=`<button class="ib del" title="Устгах" data-del="${p.id}"><svg width="18" height="18"><use href="#i-trash"/></svg></button>`;
+  }
+  return `<div class="pl ${cap?'cap':''}"><div><div class="n">${cap?crown(18):''}${esc(p.name)} ${co(p)}</div><div class="m">${meta(p)}</div></div><div class="acts">${acts}</div></div>`;
+ }).join('');
+ if(!setup)renderDraft(prev);
+}
+
+function renderDraft(prev){
+ const done=S.phase==='done',cur=S.order[S.pickIndex];
+ const myTurn=!done&&ME&&(ME.role==='admin'||ME.team===cur);
+ const mine=!done&&ME&&ME.role==='captain'&&ME.team===cur;
+ $('#draftTitle').textContent=done?'Драфт дууссан':'Драфт явагдаж байна';
+ $('#undoBtn').disabled=!S.history.length;
+ const b=$('#banner');b.className='banner'+(mine?' mine':'');
+ if(done)b.innerHTML=`<div class="big">🏁 Бүх багууд бүрдлээ</div><div class="muted">${S.history.length} сонголт хийгдсэн</div>`;
+ else{
+  const capt=P(S.teams.find(t=>t.no===cur).captainId);
+  b.innerHTML=`<div><div class="big">${mine?'Таны ээлж! Тоглогч сонгоно уу':`Баг ${cur} сонгож байна`}</div><div class="muted">Ахлагч: ${esc(capt.name)} · Сонголт ${S.pickIndex+1}/${S.order.length}</div></div>`+
+   (ME?'':`<div class="muted">Ахлагч бол нэвтэрч ээлжээ хүлээнэ үү</div>`);
+ }
+ document.title=mine?'⚡ Таны ээлж! — Драфт':'Драфт самбар — Office Dota 2 Team Builder';
+ $('#order').innerHTML=S.order.map((t,i)=>`<span class="${i<S.pickIndex?'past':i===S.pickIndex&&!done?'now':''}">${t}</span>`).join('');
+ const lastId=S.history.length>lastPicks&&prev?S.history[S.history.length-1].playerId:null;lastPicks=S.history.length;
+ const tEl=$('#teams');tEl.className='teams'+(S.teamCount===4?' c4':'');
+ tEl.innerHTML=S.teams.map(t=>{
+  const ps=t.players.map(P).filter(Boolean),avg=Math.round(ps.reduce((s,p)=>s+p.mmr,0)/ps.length);
+  const total=ps.reduce((s,p)=>s+p.mmr,0);
+  let slots=ps.map((p,i)=>`<div class="slot ${i===0?'capt':''} ${p.id===lastId?'new':''}"><b>${i===0?'👑 ':''}${esc(p.name)} ${co(p)}</b><small>${p.mmr} · ${ROLES[p.pos]} / P${p.sec}</small></div>`).join('');
+  for(let i=ps.length;i<5;i++)slots+=`<div class="slot empty">—</div>`;
+  return `<div class="team ${t.no===cur&&!done?'turn':''} ${ME&&ME.team===t.no?'me':''}"><h3><span>Баг ${t.no}</span><span class="muted" style="font-size:14px">${ps.length}/5</span></h3><div class="avg">Нийт ${total} · Дундаж ${avg} MMR</div>${slots}</div>`;
+ }).join('');
+ const picked=new Set(S.teams.flatMap(t=>t.players));
+ const pool=S.players.filter(p=>!picked.has(p.id)).sort((a,b)=>b.mmr-a.mmr);
+ $('#poolN').textContent=pool.length;
+ $('#pool').innerHTML=pool.length?pool.map(p=>`<div class="pl"><div><div class="n">${esc(p.name)} ${co(p)}</div><div class="m">${meta(p)}</div></div>${done?'':`<button class="pick" data-pick="${p.id}" ${myTurn?'':'disabled'}>Сонгох</button>`}</div>`).join(''):'<div class="muted">Бүх тоглогч сонгогдсон.</div>';
+}
+
+// ---- events ----
+document.addEventListener('click',async e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.cap)act('toggleCaptain',{id:t.dataset.cap});
+ else if(t.dataset.edit)openPlayer(P(t.dataset.edit));
+ else if(t.dataset.del){if(t.dataset.sure){act('deletePlayer',{id:t.dataset.del})}else{t.dataset.sure=1;t.style.background='#3a1512';toast('Устгахын тулд дахин дарна уу');setTimeout(()=>{delete t.dataset.sure;t.style.background=''},2500)}}
+ else if(t.dataset.pick){t.disabled=true;const r=await act('pick',{playerId:t.dataset.pick});if(r&&r.ok)toast(`${P(t.dataset.pick).name} сонгогдлоо`)}
+ else if(t.dataset.n)act('setTeamCount',{n:+t.dataset.n});
+ else if(t.hasAttribute('data-close'))t.closest('.modal').classList.remove('open');
+});
+$('#lockBtn').onclick=()=>act('lockCaptains');
+$('#startBtn').onclick=()=>act('startDraft');
+$('#undoBtn').onclick=()=>act('undo');
+$('#resetDraftBtn').onclick=e=>{const b=e.currentTarget;if(b.dataset.sure){delete b.dataset.sure;b.textContent='Драфт дахин эхлүүлэх';act('resetDraft')}else{b.dataset.sure=1;b.textContent='Итгэлтэй юу? Дахин дар';setTimeout(()=>{delete b.dataset.sure;b.textContent='Драфт дахин эхлүүлэх'},3000)}};
+$('#addBtn').onclick=()=>openPlayer(null);
+$('#loginBtn').onclick=()=>{$('#loginErr').textContent='';$('#loginM').classList.add('open');$('#loginF').username.focus()};
+$('#logoutBtn').onclick=()=>{try{localStorage.removeItem('sd_token')}catch(e){}socket.emit('logout')};
+$('#loginF').onsubmit=e=>{e.preventDefault();const f=e.target;
+ socket.emit('login',{username:f.username.value,password:f.password.value},r=>{
+  if(r.error){$('#loginErr').textContent=r.error;return}
+  try{localStorage.setItem('sd_token',r.token)}catch(e){}
+  socket.auth.token=r.token;ME=r.me;f.reset();$('#loginM').classList.remove('open');render();toast('Амжилттай нэвтэрлээ');
+ })};
+const pf=$('#playerF');
+pf.company.innerHTML='<option value="" disabled>Сонгох…</option>'+COMPANIES.map(c=>`<option>${c}</option>`).join('');
+pf.medal.innerHTML=MEDALS.map(m=>`<option>${m}</option>`).join('');
+pf.pos.innerHTML=pf.sec.innerHTML=Object.entries(ROLES).map(([k,v])=>`<option value="${k}">${k} · ${v}</option>`).join('');
+function openPlayer(p){
+ $('#pmTitle').textContent=p?'Тоглогч засах':'Тоглогч нэмэх';$('#playerErr').textContent='';
+ pf.id.value=p?p.id:'';pf.name.value=p?p.name:'';pf.company.value=p&&p.company||'';pf.medal.value=p?p.medal:'Legend';pf.mmr.value=p?p.mmr:'';pf.pos.value=p?p.pos:1;pf.sec.value=p?p.sec:2;
+ $('#playerM').classList.add('open');pf.name.focus();
+}
+pf.onsubmit=async e=>{e.preventDefault();
+ const d={id:pf.id.value,name:pf.name.value,company:pf.company.value,medal:pf.medal.value,mmr:pf.mmr.value,pos:pf.pos.value,sec:pf.sec.value};
+ const r=await act(d.id?'editPlayer':'addPlayer',d);if(r&&r.ok)$('#playerM').classList.remove('open');
+};
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+</script>
+</body>
+</html>

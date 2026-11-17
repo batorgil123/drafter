@@ -1,0 +1,8 @@
+[
+ {"username":"admin","password":"admin2026","role":"admin"},
+ {"username":"team1","password":"baga1-2026","role":"captain","team":1},
+ {"username":"team2","password":"baga2-2026","role":"captain","team":2},
+ {"username":"team3","password":"baga3-2026","role":"captain","team":3},
+ {"username":"team4","password":"baga4-2026","role":"captain","team":4},
+ {"username":"team5","password":"baga5-2026","role":"captain","team":5}
+]
