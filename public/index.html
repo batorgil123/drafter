@@ -10,9 +10,9 @@
 :root{--teal:#5fd4dc;--bg:#0b0d10;--card:#111418;--card2:#14181d;--line:#262b33;--text:#eef0f3;--mute:#9aa3ad;--red:#e5483b;--red2:#c53a2f;--gold:#e8b84a;--green:#3fb26b}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 Inter,system-ui,sans-serif;min-height:100vh}
-/* blurred page background + dark veil so panels stand out from the art */
-body::before{content:"";position:fixed;inset:-40px;background:url(/bg.jpg) center 30%/cover no-repeat;filter:blur(9px) brightness(.6) saturate(1.1);z-index:-2}
-body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 50% 20%,rgba(4,10,14,.25),rgba(4,8,12,.78) 75%);z-index:-1}
+/* page background art + light dark veil so panels stand out from it */
+body::before{content:"";position:fixed;inset:0;background:url(/bg.jpg) center 30%/cover no-repeat;filter:brightness(.85) saturate(1.15);z-index:-2}
+body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 50% 20%,rgba(4,10,14,.08),rgba(4,8,12,.5) 80%);z-index:-1}
 .wrap{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
 h1,h2,h3,.disp{font-family:Oswald,Impact,sans-serif;text-transform:uppercase;letter-spacing:.3px;margin:0}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px;flex-wrap:wrap}
@@ -21,8 +21,8 @@ header h1{font-size:30px}header .sub{color:var(--mute);margin-top:2px}
 .dot{width:8px;height:8px;border-radius:50%;background:#666;display:inline-block;margin-right:6px}
 .dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
 .pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px;color:var(--mute);display:flex;align-items:center}
-.card{background:rgba(9,12,16,.8);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:22px;margin-bottom:22px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
-header{background:rgba(9,12,16,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px 22px}
+.card{background:rgba(9,12,16,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:22px;margin-bottom:22px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+header{background:rgba(9,12,16,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px 22px}
 header h1 .acc{color:var(--teal)}
 .ctitle{display:flex;align-items:center;gap:10px;font-size:22px}
 .ctitle svg{color:var(--red)}
@@ -100,14 +100,35 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
 .ctitle .acc,.ctitle svg.t{color:var(--teal)}
 .lead{color:#c9d1d9;margin:6px 0 18px;max-width:760px}
 .stats{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:10px}
-.stat{border:1px solid var(--line);border-radius:12px;background:rgba(20,24,29,.85);padding:14px}
+.stat{border:1px solid var(--line);border-radius:12px;background:rgba(20,24,29,.7);padding:14px}
 .stat .k{color:var(--mute);font-size:12.5px}
 .stat .v{font-family:Oswald,Impact,sans-serif;font-size:26px;line-height:1.15;margin-top:4px}
-.stat.prize{border-color:rgba(232,184,74,.55);background:linear-gradient(160deg,rgba(232,184,74,.16),rgba(20,24,29,.85))}
+.stat.prize{border-color:rgba(232,184,74,.55);background:linear-gradient(160deg,rgba(232,184,74,.16),rgba(20,24,29,.7))}
 .stat.prize .v{color:var(--gold);font-size:30px}
 .stat .s{color:var(--mute);font-size:12px;margin-top:2px}
+/* 1st place: rotating golden border + soft pulsing glow behind */
+@property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+.stat.gold{border:1.5px solid transparent;
+ background:linear-gradient(160deg,rgba(232,184,74,.07),rgba(232,184,74,0) 70%) padding-box,
+  linear-gradient(#12161b,#12161b) padding-box,
+  conic-gradient(from var(--ang),#3a3020,#7a6230,#b8964e,#7a6230,#3a3020,#5c4a26,#a88a4a,#3a3020) border-box;
+ animation:goldSpin 4s linear infinite,goldGlow 2.8s ease-in-out infinite;
+ box-shadow:0 0 12px rgba(232,184,74,.08)}
+.stat.gold .k{color:#cbb47a}
+.stat.gold .v{background:linear-gradient(180deg,#f0d999,#d6aa4c 60%,#a8823a);-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes goldSpin{to{--ang:360deg}}
+@keyframes goldGlow{50%{box-shadow:0 0 16px rgba(232,184,74,.14)}}
+/* 2nd place: brushed silver */
+.stat.silver{border:1.5px solid transparent;
+ background:linear-gradient(160deg,rgba(210,218,226,.05),rgba(210,218,226,0) 70%) padding-box,
+  linear-gradient(#12161b,#12161b) padding-box,
+  linear-gradient(135deg,#3c4249,#8a939b,#4f565d,#7f878f,#3c4249) border-box;
+ box-shadow:none}
+.stat.silver .k{color:#b3bbc3}
+.stat.silver .v{background:linear-gradient(180deg,#e9edf1,#bfc7ce 60%,#959ea6);-webkit-background-clip:text;background-clip:text;color:transparent}
+@media(prefers-reduced-motion:reduce){.stat.gold{animation:none}}
 .sched{display:grid;gap:8px}
-.mrow{display:grid;grid-template-columns:44px 132px 1fr 34px 1fr 96px;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(20,24,29,.85)}
+.mrow{display:grid;grid-template-columns:44px 132px 1fr 44px 1fr 96px;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(20,24,29,.7)}
 .mrow .no{font-family:Oswald,Impact,sans-serif;font-size:20px;color:var(--mute)}
 .mrow .dt b{display:block;font-size:15px}.mrow .dt small{color:var(--mute);font-size:12.5px}
 .mrow .tm b{display:block;font-size:15px}.mrow .tm small{color:var(--mute);font-size:12px}
@@ -118,7 +139,7 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
 .mrow.next .st{border-color:var(--teal);color:var(--teal)}
 .mrow.past{opacity:.5}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.box{border:1px solid var(--line);border-radius:12px;background:rgba(20,24,29,.85);padding:16px}
+.box{border:1px solid var(--line);border-radius:12px;background:rgba(20,24,29,.7);padding:16px}
 .box h3{font-size:18px;margin-bottom:8px;color:var(--teal)}
 .box ul{margin:0;padding-left:18px;color:#c9d1d9}.box li{margin:5px 0}
 .pts{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
@@ -180,8 +201,8 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
   <p class="lead">Энэхүү лиг нь хамт олны нөхөрсөг харилцааг бэхжүүлэх, чөлөөт цагаа хамтдаа зугаатай өнгөрүүлэх зорилготой. Лигт нийт 25 тоглогч 5 багт хуваагдан оролцоно.</p>
   <div class="stats">
    <div class="stat prize"><div class="k">🏆 Шагналын сан</div><div class="v">1,250,000₮</div><div class="s">Оролцооны хураамжаас бүрдэнэ</div></div>
-   <div class="stat"><div class="k">🥇 1-р байр</div><div class="v">1,000,000₮</div></div>
-   <div class="stat"><div class="k">🥈 2-р байр</div><div class="v">250,000₮</div></div>
+   <div class="stat gold"><div class="k">🥇 1-р байр</div><div class="v">1,000,000₮</div></div>
+   <div class="stat silver"><div class="k">🥈 2-р байр</div><div class="v">250,000₮</div></div>
    <div class="stat"><div class="k">Оролцооны хураамж</div><div class="v">50,000₮</div><div class="s">нэг тоглогч · PC-ны зардал өөрөө</div></div>
    <div class="stat"><div class="k">Эхлэх өдөр</div><div class="v">12/01</div><div class="s">Мягмар · 11/30-ны долоо хоног</div></div>
   </div>
@@ -392,10 +413,10 @@ function renderSchedule(){
  const d=new Date(),today=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
  const nextNo=(SCHEDULE.find(m=>m[1]>=today)||[])[0];
  const side=(sh,r)=>{const t=teamByShort(sh),c=t&&P(t.captainId);
-  return `<div class="tm ${r?'r':''}"><b>Team ${esc(sh)}</b><small>${t?`Баг ${t.no} · 👑 ${esc(c.name)}`:''}</small></div>`};
+  return `<div class="tm ${r?'r':''}"><b>Team ${esc(sh)}</b><small>${t?`👑 ${esc(c.name)}`:''}</small></div>`};
  $('#sched').innerHTML=SCHEDULE.map(([no,date,day,a,b])=>{
   const past=date<today,next=no===nextNo;
-  return `<div class="mrow ${past?'past':''} ${next?'next':''}"><span class="no">${no}</span><div class="dt"><b>${date.slice(5).replace('-','/')}</b><small>${day}</small></div>${side(a)}<span class="vs">VS</span>${side(b,1)}<span class="st">${past?'Болсон':next?(date===today?'Өнөөдөр':'Дараагийнх'):'BO2'}</span></div>`}).join('');
+  return `<div class="mrow ${past?'past':''} ${next?'next':''}"><span class="no">${no}</span><div class="dt"><b>${date.slice(5).replace('-','/')}</b><small>${day}</small></div>${side(a,1)}<span class="vs">VS</span>${side(b)}<span class="st">${past?'Болсон':next?(date===today?'Өнөөдөр':'Дараагийнх'):'BO2'}</span></div>`}).join('');
 }
 
 function renderDraft(prev){
@@ -430,7 +451,7 @@ function renderDraft(prev){
   let slots=ps.map((p,i)=>`<div class="slot ${i===0?'capt':''} ${p.id===lastId?'new':''} ${editBtn?'ed':''}"><div><b>${i===0?'👑 ':''}${esc(p.name)} ${co(p)}</b><small>${p.mmr} · ${ROLES[p.pos]} / P${p.sec}</small>${sel(p)}</div>${editBtn?`<button class="ib" title="Засах" data-edit="${p.id}"><svg width="15" height="15"><use href="#i-edit"/></svg></button>`:''}</div>`).join('');
   for(let i=ps.length;i<5;i++)slots+=`<div class="slot empty">—</div>`;
   const tn=teamName(t),named=tn!==`Баг ${t.no}`;
-  return `<div class="team ${t.no===cur&&!done?'turn':''} ${ME&&ME.team===t.no?'me':''}">${named?`<div class="tname">${esc(tn)}</div>`:''}<h3><span>Баг ${t.no}</span><span class="muted" style="font-size:14px">${ps.length}/5</span></h3><div class="avg">Нийт ${total} · Дундаж ${avg} MMR</div>${slots}</div>`;
+  return `<div class="team ${t.no===cur&&!done?'turn':''} ${ME&&ME.team===t.no?'me':''}"><h3><span ${named?'class="tname"':''}>${esc(tn)}</span><span class="muted" style="font-size:14px">${ps.length}/5</span></h3><div class="avg">Нийт ${total} · Дундаж ${avg} MMR</div>${slots}</div>`;
  }).join('');
  const picked=new Set(S.teams.flatMap(t=>t.players));
  const pool=S.players.filter(p=>!picked.has(p.id));
