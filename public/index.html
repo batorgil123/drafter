@@ -337,7 +337,7 @@ function render(prev){
  $('#loginBtn').classList.toggle('hidden',!!ME);$('#logoutBtn').classList.toggle('hidden',!ME);
  const chip=$('#meChip');chip.classList.toggle('hidden',!ME);
  if(ME)chip.innerHTML=ME.role==='admin'?'Админ':`Баг ${ME.team}-ийн ахлагч`;
- $('#connTxt').textContent=socket.connected?`Шууд · ${S.online} үзэж байна`:'Холболт тасарсан…';
+ $('#connTxt').textContent=!socket.connected?'Холболт тасарсан…':isAdmin()?`Шууд · ${S.online} үзэж байна`:'Шууд';
  $('#subTeams').textContent=S.teamCount;$('#subPlayers').textContent=S.players.length;
  document.querySelectorAll('.tc').forEach(e=>e.textContent=S.teamCount);
  const setup=S.phase==='setup';
