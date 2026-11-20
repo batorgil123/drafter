@@ -12,57 +12,67 @@ const SECRET = process.env.SECRET || 'change-me-steppe-secret';
 const ACCOUNTS = process.env.ACCOUNTS_JSON
   ? JSON.parse(process.env.ACCOUNTS_JSON)
   : JSON.parse(fs.readFileSync(path.join(__dirname, 'accounts.json'), 'utf8'));
-const SEED = JSON.parse(fs.readFileSync(path.join(__dirname, 'seed.json'), 'utf8'));
+if (process.env.TEAM6_PASSWORD) {
+  const team6 = ACCOUNTS.find((account) => account.username === 'team6' && account.team === 6);
+  if (team6) team6.password = process.env.TEAM6_PASSWORD;
+  else if (!ACCOUNTS.some((account) => account.team === 6)) {
+    ACCOUNTS.push({ username: 'team6', password: process.env.TEAM6_PASSWORD, role: 'captain', team: 6 });
+  }
+}
+const previousDraft = require('./draft-result.json');
+const TEAM_COUNT = 6;
+const MIN_PLAYERS = TEAM_COUNT * 5;
+const STATE_VERSION = 2;
 
 // ---------- state ----------
-const seedKey = (p) => `${p.name}|${p.medal}|${p.mmr}`;
-function freshState() {
+function freshState(players = previousDraft.players) {
   return {
-    players: SEED.map((p, i) => ({ id: 'p' + (i + 1), ...p })),
-    seedKeys: SEED.map(seedKey), // seed entries already applied
-    nextId: SEED.length + 1,
-    teamCount: 5,
-    captains: [],          // player ids
+    version: STATE_VERSION,
+    players: players.map((player) => ({ ...player })),
+    nextId: Math.max(0, ...players.map((player) => Number(player.id.slice(1)) || 0)) + 1,
+    teamCount: TEAM_COUNT,
+    captains: [],
     captainsLocked: false,
-    captainOrder: [],      // random team order of captains (index 0 = Team 1), set on lock
-    phase: 'setup',        // setup | draft | done
-    teams: [],             // [{no, captainId, players:[ids]}]
-    order: [],             // team numbers in pick order
+    captainOrder: [],
+    phase: 'setup',
+    teams: [],
+    order: [],
     pickIndex: 0,
-    history: [],           // [{team, playerId, by, at}]
+    history: [],
+    draftTiers: null,
   };
 }
-let state;
-// draft-result.json holds the final draft. While it exists the board is static:
-// it always shows that result (data.json is ignored) and every action is rejected.
-// Delete draft-result.json to go back to a normal, editable draft.
-const RESULT_FILE = path.join(__dirname, 'draft-result.json');
-let FINAL = false;
-try { state = JSON.parse(fs.readFileSync(RESULT_FILE, 'utf8')); state.final = true; FINAL = true; console.log('Static mode: showing draft-result.json'); }
-catch {
-  try { state = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); } catch { state = freshState(); }
-}
-let saveTimer = null;
-function save() {
-  clearTimeout(saveTimer);
-  // static mode: company edits go straight into draft-result.json
-  if (FINAL) { saveTimer = setTimeout(() => fs.writeFile(RESULT_FILE, JSON.stringify(state, null, 1), () => {}), 200); return; }
-  saveTimer = setTimeout(() => fs.writeFile(DATA_FILE, JSON.stringify(state), () => {}), 200);
+
+function rankDraftTiers(players) {
+  const ranked = [...players].sort((a, b) => b.mmr - a.mmr || Number(a.id.slice(1)) - Number(b.id.slice(1)));
+  return Object.fromEntries(ranked.slice(0, MIN_PLAYERS).map((player, index) => [
+    player.id, Math.floor(index / TEAM_COUNT) + 1,
+  ]));
 }
 
-// New seed.json entries are added to an existing data.json on startup (only while in setup).
-// Each seed entry is applied once, so a player the admin deleted does not come back.
-(function mergeSeed() {
-  if (!state.seedKeys) state.seedKeys = state.players.map(seedKey); // older data.json
-  if (state.phase !== 'setup') return;
-  const applied = new Set(state.seedKeys);
-  const added = SEED.filter((p) => !applied.has(seedKey(p)));
-  for (const p of added) {
-    state.players.push({ id: 'p' + state.nextId++, ...p });
-    state.seedKeys.push(seedKey(p));
+function loadState() {
+  let saved;
+  try {
+    saved = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    return freshState();
   }
-  if (added.length) { save(); console.log(`Added ${added.length} new player(s) from seed.json`); }
-})();
+  if (saved.version === STATE_VERSION) {
+    if (saved.phase !== 'setup' && !saved.draftTiers) saved.draftTiers = rankDraftTiers(saved.players);
+    return saved;
+  }
+  const archivedIds = new Set(previousDraft.players.map((player) => player.id));
+  const extraPlayers = saved.players.filter((player) => !archivedIds.has(player.id));
+  return freshState([...previousDraft.players, ...extraPlayers]);
+}
+
+let state = loadState();
+function save() {
+  const temporaryFile = DATA_FILE + '.tmp';
+  fs.writeFileSync(temporaryFile, JSON.stringify(state, null, 2) + '\n', { mode: 0o600 });
+  fs.renameSync(temporaryFile, DATA_FILE);
+}
 
 // ---------- auth (stateless signed tokens) ----------
 const sign = (u) => crypto.createHmac('sha256', SECRET).update(u.username + ':' + u.password).digest('hex').slice(0, 32);
@@ -111,18 +121,19 @@ function playerFrom(d) {
 
 const actions = {
   // ---- admin ----
-  addPlayer(a, d) { const p = playerFrom(d); state.players.push({ id: 'p' + state.nextId++, ...p }); },
+  addPlayer(a, d) {
+    if (state.phase !== 'setup') throw new Error('Тоглогчийг драфт эхлэхээс өмнө нэмнэ үү');
+    const player = playerFrom(d);
+    state.players.push({ id: 'p' + state.nextId++, ...player });
+  },
   editPlayer(a, d) { const p = getP(d.id); if (!p) throw new Error('Тоглогч олдсонгүй'); Object.assign(p, playerFrom(d)); },
   deletePlayer(a, d) {
     if (state.phase !== 'setup') throw new Error('Драфтын үед устгах боломжгүй');
     state.players = state.players.filter((p) => p.id !== d.id);
-    state.captains = state.captains.filter((c) => c !== d.id);
-  },
-  setTeamCount(a, d) {
-    if (state.phase !== 'setup') throw new Error('Драфт эхэлсэн байна');
-    const n = d.n === 4 ? 4 : 5; state.teamCount = n;
-    if (state.captains.length > n) state.captains = state.captains.slice(0, n);
-    state.captainsLocked = false;
+    if (state.captains.includes(d.id)) {
+      state.captains = state.captains.filter((c) => c !== d.id);
+      state.captainsLocked = false;
+    }
   },
   toggleCaptain(a, d) {
     if (state.phase !== 'setup') throw new Error('Драфт эхэлсэн байна');
@@ -132,6 +143,7 @@ const actions = {
     state.captainsLocked = false;
   },
   lockCaptains() {
+    if (state.phase !== 'setup') throw new Error('Драфт эхэлсэн байна');
     if (state.captains.length !== state.teamCount) throw new Error(`Яг ${state.teamCount} ахлагч сонгоно уу`);
     state.captainsLocked = true;
     state.captainOrder = shuffle(state.captains); // random: index 0 = Team 1
@@ -139,14 +151,19 @@ const actions = {
   startDraft() {
     if (state.phase !== 'setup') throw new Error('Драфт аль хэдийн эхэлсэн');
     if (!state.captainsLocked) throw new Error('Эхлээд ахлагчдаа хадгална уу');
-    if (state.players.length < 10) throw new Error('Дор хаяж 10 тоглогч хэрэгтэй');
+    if (state.players.length < MIN_PLAYERS) throw new Error(`Дор хаяж ${MIN_PLAYERS} тоглогч хэрэгтэй`);
     // team numbers decided randomly when captains were locked
     const valid = state.captainOrder && state.captainOrder.length === state.captains.length &&
       state.captains.every((c) => state.captainOrder.includes(c));
     if (!valid) state.captainOrder = shuffle(state.captains);
+    const tiers = rankDraftTiers(state.players);
+    if (state.captains.some((id) => !tiers[id])) {
+      throw new Error('Ахлагч бүр эхний таван tier-д багтсан байх ёстой');
+    }
+    state.draftTiers = tiers;
     const caps = state.captainOrder.map(getP);
     state.teams = caps.map((c, i) => ({ no: i + 1, captainId: c.id, players: [c.id] }));
-    state.order = buildOrder(state.teamCount, state.players.length - caps.length);
+    state.order = buildOrder(state.teamCount, Object.keys(tiers).length - caps.length);
     state.pickIndex = 0; state.history = []; state.phase = state.order.length ? 'draft' : 'done';
   },
   undo() {
@@ -154,9 +171,8 @@ const actions = {
     const t = state.teams.find((x) => x.no === h.team); t.players = t.players.filter((p) => p !== h.playerId);
     state.pickIndex--; state.phase = 'draft';
   },
-  resetDraft() { Object.assign(state, { phase: 'setup', teams: [], order: [], pickIndex: 0, history: [] }); },
-  resetAll() { state = freshState(); },
-  setCompany(a, d) { // works after the draft too (incl. static mode); '' clears it
+  resetDraft() { Object.assign(state, { phase: 'setup', teams: [], order: [], pickIndex: 0, history: [], draftTiers: null }); },
+  setCompany(a, d) { // An empty value clears the company.
     const p = getP(d.id); if (!p) throw new Error('Тоглогч олдсонгүй');
     const c = String(d.company || '').trim().toUpperCase();
     if (c && !COMPANIES.includes(c)) throw new Error('Буруу компани');
@@ -169,14 +185,21 @@ const actions = {
     if (a.role === 'captain' && a.team !== teamNo) throw new Error(`Одоо Баг ${teamNo}-ийн ээлж`);
     const p = getP(d.playerId);
     if (!p || pickedIds().has(p.id)) throw new Error('Тоглогч сонгох боломжгүй');
-    state.teams.find((t) => t.no === teamNo).players.push(p.id);
+    const team = state.teams.find((t) => t.no === teamNo);
+    const conflict = draftTierConflict();
+    if (conflict) throw new Error(conflict);
+    const tier = state.draftTiers[p.id];
+    if (!tier) throw new Error('Нөөц тоглогчийг сонгох боломжгүй');
+    if (team.players.some((id) => state.draftTiers[id] === tier)) {
+      throw new Error(`Танай баг Tier ${tier}-ээс тоглогч авсан байна`);
+    }
+    team.players.push(p.id);
     state.history.push({ team: teamNo, playerId: p.id, by: a.username, at: Date.now() });
     state.pickIndex++;
     if (state.pickIndex >= state.order.length) state.phase = 'done';
   },
 };
 const CAPTAIN_ALLOWED = new Set(['pick']);
-const FINAL_ALLOWED = new Set(['setCompany']); // only action allowed in static mode
 
 // ---------- server ----------
 const app = express();
@@ -185,7 +208,25 @@ app.get('/health', (_, res) => res.send('ok'));
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: false } });
 
-const broadcast = () => io.emit('state', { ...state, online: io.engine.clientsCount });
+function draftTierConflict() {
+  if (!state.draftTiers) return null;
+  for (const team of state.teams) {
+    const used = new Set();
+    for (const id of team.players) {
+      const tier = state.draftTiers[id];
+      if (!tier) return `Баг ${team.no} нөөц тоглогч авсан байна. Сонголтыг буцаана уу.`;
+      if (used.has(tier)) return `Баг ${team.no} Tier ${tier}-ээс хоёр хүн авсан байна. Сонголтыг буцаана уу.`;
+      used.add(tier);
+    }
+  }
+  return null;
+}
+
+function sendState(socket) {
+  const online = socket.data.acct?.role === 'admin' ? { online: io.engine.clientsCount } : {};
+  socket.emit('state', { ...state, ...online, tierConflict: draftTierConflict() });
+}
+const broadcast = () => io.sockets.sockets.forEach(sendState);
 
 io.on('connection', (socket) => {
   socket.data.acct = verify(socket.handshake.auth && socket.handshake.auth.token);
@@ -197,20 +238,30 @@ io.on('connection', (socket) => {
     if (!u) return cb && cb({ error: 'Нэвтрэх нэр эсвэл нууц үг буруу' });
     socket.data.acct = { username: u.username, role: u.role, team: u.team || null };
     cb && cb({ token: makeToken(u), me: socket.data.acct });
+    sendState(socket);
   });
-  socket.on('logout', () => { socket.data.acct = null; socket.emit('me', null); });
+  socket.on('logout', () => { socket.data.acct = null; socket.emit('me', null); sendState(socket); });
 
   socket.on('action', ({ type, data } = {}, cb) => {
-    const a = socket.data.acct; const fn = actions[type];
+    const a = socket.data.acct; const fn = Object.hasOwn(actions, type) ? actions[type] : null;
     try {
-      if (FINAL && !FINAL_ALLOWED.has(type)) throw new Error('Драфт дууссан — эцсийн дүн түгжигдсэн');
       if (!fn) throw new Error('Үл мэдэгдэх үйлдэл');
       if (!a) throw new Error('Нэвтэрнэ үү');
       if (a.role !== 'admin' && !CAPTAIN_ALLOWED.has(type)) throw new Error('Зөвхөн админ');
-      fn(a, data || {}); save(); broadcast(); cb && cb({ ok: true });
+      const previousState = structuredClone(state);
+      try {
+        fn(a, data || {});
+        save();
+      } catch (error) {
+        state = previousState;
+        throw error;
+      }
+      broadcast();
+      cb && cb({ ok: true });
     } catch (e) { cb && cb({ error: e.message }); }
   });
   socket.on('disconnect', () => setTimeout(broadcast, 50));
 });
 
+save();
 server.listen(PORT, () => console.log(`Snake draft running on http://localhost:${PORT}`));

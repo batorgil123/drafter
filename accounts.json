@@ -1,8 +1,9 @@
 [
  {"username":"admin","password":"admin2026","role":"admin"},
- {"username":"team1","password":"baga1-2026","role":"captain","team":1},
- {"username":"team2","password":"baga2-2026","role":"captain","team":2},
- {"username":"team3","password":"baga3-2026","role":"captain","team":3},
- {"username":"team4","password":"baga4-2026","role":"captain","team":4},
- {"username":"team5","password":"baga5-2026","role":"captain","team":5}
+ {"username":"team1","password":"gyhuXM","role":"captain","team":1},
+ {"username":"team2","password":"wvHaKS","role":"captain","team":2},
+ {"username":"team3","password":"JkluJy","role":"captain","team":3},
+ {"username":"team4","password":"bxQoeC","role":"captain","team":4},
+ {"username":"team5","password":"SZHuzQ","role":"captain","team":5},
+ {"username":"team6","password":"CTOnfw","role":"captain","team":6}
 ]

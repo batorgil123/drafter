@@ -17,7 +17,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse
 h1,h2,h3,.disp{font-family:Oswald,Impact,sans-serif;text-transform:uppercase;letter-spacing:.3px;margin:0}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px;flex-wrap:wrap}
 header h1{font-size:30px}header .sub{color:var(--mute);margin-top:2px}
-.hright{display:flex;gap:10px;align-items:center}
+.hright{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .dot{width:8px;height:8px;border-radius:50%;background:#666;display:inline-block;margin-right:6px}
 .dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
 .pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px;color:var(--mute);display:flex;align-items:center}
@@ -42,13 +42,11 @@ button{font:inherit;cursor:pointer;border:0;border-radius:8px;color:var(--text)}
 .btn.red{background:var(--red);border-color:var(--red)}.btn.red:hover{background:var(--red2)}
 .btn.ghost{background:transparent}
 .btn:disabled{opacity:.45;cursor:not-allowed}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.seg button{padding:9px 14px;background:#0f1216;border-radius:0;font-weight:600}
-.seg button.on{background:var(--red)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .pl{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card2)}
 .pl.cap{border-color:var(--gold)}
-.pl .n{font-weight:700;font-size:17px;display:flex;align-items:center;gap:6px;letter-spacing:.2px}
+.pl>div:first-child{min-width:0;overflow-wrap:anywhere}
+.pl .n{font-weight:700;font-size:17px;display:block;align-items:center;gap:6px;letter-spacing:.2px}
 .pl .n svg{color:var(--gold)}
 .pl .m{color:var(--mute);font-size:13.5px}.pl .m b{color:var(--text)}
 .tn{display:inline-block;font:700 11px/1 Inter,sans-serif;padding:3px 7px;border-radius:5px;background:var(--gold);color:#1a1405;vertical-align:middle}
@@ -64,8 +62,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:8px;color:var(--text)}
 .order{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 18px}
 .order span{min-width:30px;text-align:center;padding:4px 6px;border-radius:6px;background:#161a20;border:1px solid var(--line);font-size:12px;color:var(--mute)}
 .order span.past{opacity:.35}.order span.now{background:var(--red);color:#fff;border-color:var(--red);font-weight:700}
-.teams{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:22px}
-.teams.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.teams{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:22px}
 .team{border:1px solid var(--line);border-radius:12px;background:var(--card2);padding:12px;min-height:220px}
 .team.turn{border-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
 .team.me{background:linear-gradient(180deg,#1a1410,var(--card2))}
@@ -79,7 +76,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:8px;color:var(--text)}
 .slot .ib{width:28px;height:28px;flex-shrink:0}
 .slot .cosel{display:block;width:100%;margin-top:6px;padding:5px 8px;font-size:12.5px;font-weight:600;border-radius:6px}
 .slot .cosel.none{color:var(--mute);border-style:dashed}.slot small{color:var(--mute)}
-.slot.capt b{color:var(--gold)}
+.slot.capt,.pl.draft-captain{outline:1px solid var(--gold);outline-offset:-1px}
 .slot.empty{border:1px dashed var(--line);background:transparent;color:#4b525c;text-align:center}
 .slot.new{animation:flash 1.2s}
 @keyframes flash{0%{background:var(--red)}100%{background:#0e1115}}
@@ -131,6 +128,7 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
 .mrow{display:grid;grid-template-columns:44px 132px 1fr 120px 1fr 96px;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(20,24,29,.7)}
 .mrow .no{font-family:Oswald,Impact,sans-serif;font-size:20px;color:var(--mute)}
 .mrow .dt b{display:block;font-size:15px}.mrow .dt small{color:var(--mute);font-size:12.5px}
+.mrow .tm{min-width:0;overflow-wrap:anywhere}
 .mrow .tm b{display:block;font-size:15px}.mrow .tm small{color:var(--mute);font-size:12px}
 .mrow .tm.r{text-align:right}
 .mrow .vs{text-align:center;color:var(--mute);font-size:12px;font-weight:700}
@@ -152,16 +150,24 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
 .rule h4{margin:0 0 4px;font-size:14.5px}.rule p{margin:0;color:#b9c2cc;font-size:13.5px}
 .team .tname{font-family:Oswald,Impact,sans-serif;font-size:20px;text-transform:uppercase;color:var(--teal);line-height:1.1}
 .tier{margin-bottom:16px}
-.pl.capd{opacity:.45;border-style:dashed;border-color:var(--gold);cursor:not-allowed}
-.pl.capd .n svg{color:var(--gold)}
+.pl.capd{opacity:.55;cursor:not-allowed}
+.pl.capd.draft-captain{opacity:.8}
 .capl{font-size:12px;font-weight:700;color:var(--gold);border:1px solid var(--gold);border-radius:6px;padding:5px 9px;flex-shrink:0}
 .tier .th{display:flex;align-items:baseline;gap:10px;margin:0 0 8px;flex-wrap:wrap}
 .tier .th h3{font-size:17px;color:var(--gold)}
 .tier .th span{color:var(--mute);font-size:13px}
 @media(max-width:980px){.stats{grid-template-columns:repeat(2,1fr)}.stat.prize{grid-column:1/-1}.cols,.rules{grid-template-columns:1fr}
- .mrow{grid-template-columns:34px 1fr 26px 1fr;row-gap:4px}.mrow .dt{grid-column:2/-1;grid-row:1}.mrow .no{grid-row:1/3}.mrow .st{grid-column:2/-1;justify-self:start}}
-@media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}.teams,.teams.c4{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:1fr}}
-@media(max-width:620px){.grid,.teams,.teams.c4{grid-template-columns:1fr}header h1{font-size:24px}}
+ .mrow{grid-template-columns:34px minmax(0,1fr) 26px minmax(0,1fr);row-gap:4px}.mrow .dt{grid-column:2/-1;grid-row:1}.mrow .no{grid-row:1/3}.mrow .st{grid-column:2/-1;justify-self:start}}
+@media(max-width:980px){.grid,.teams{grid-template-columns:repeat(2,minmax(0,1fr))}.steps{grid-template-columns:1fr}}
+@media(max-width:620px){
+ .wrap{padding:12px 10px 36px}
+ .card,header{padding:14px}
+ .grid,.teams{grid-template-columns:minmax(0,1fr)}
+ header h1{font-size:24px}
+ .stat{padding:10px}
+ .stat .v{font-size:clamp(16px,5vw,26px)}
+ .mrow{gap:6px;padding:8px;grid-template-columns:22px minmax(0,1fr) 22px minmax(0,1fr)}
+}
 </style>
 </head>
 <body>
@@ -177,7 +183,7 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
 
 <div class="wrap">
  <header>
-  <div><h1>TechPack Group <span class="acc">Dota 2</span> дотоод лиг</h1><div class="sub"><span id="subPlayers">25</span> тоглогч · <span id="subTeams">5</span> баг · Хэсгийн шат 12/01–12/30 · Шигшээ шат дараа нь</div></div>
+  <div><h1>TechPack Group <span class="acc">Dota 2</span> дотоод лиг</h1><div class="sub"><span id="subPlayers">25</span> тоглогч · <span id="subTeams">6</span> баг</div></div>
   <div class="hright">
    <span class="pill"><span class="dot" id="conn"></span><span id="connTxt">Холбогдож байна…</span></span>
    <span class="pill hidden" id="meChip"></span>
@@ -190,21 +196,21 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
   <div class="ctitle"><svg width="24" height="24"><use href="#i-shield"/></svg><h2>Хэрхэн эхлэх вэ</h2></div>
   <div class="muted" style="margin-top:4px">Дараах 3 алхмыг гүйцэтгэнэ үү.</div>
   <div class="steps">
-   <div class="step" id="s1"><div class="t"><h3>1. Тоглогч нэмэх</h3><span class="c" id="s1c"></span></div><p>“Тоглогч нэмэх” товчоор хамт олны нэр, медаль, MMR, байрлалыг бүртгэнэ. Дор хаяж 10 хэрэгтэй.</p></div>
-   <div class="step" id="s2"><div class="t"><h3>2. <span class="tc">5</span> ахлагч сонгох</h3><span class="c" id="s2c"></span></div><p>Тоглогчийн хажуу дахь титэм дээр дарж яг <span class="tc">5</span> ахлагч сонгоод “Ахлагч хадгалах” дарна. Ахлагч бүр аль баг болохыг систем санамсаргүйгээр (random) шийднэ.</p></div>
-   <div class="step" id="s3"><div class="t"><h3>3. Драфт эхлүүлэх</h3></div><p>Snake дараалал: 1→2→3→4→5→5→4→3→2→1… Ахлагч бүр өөрийн аккаунтаар нэвтэрч ээлжээрээ “Сонгох” дарна.</p></div>
+   <div class="step" id="s1"><div class="t"><h3>1. Тоглогч нэмэх</h3><span class="c" id="s1c"></span></div><p>“Тоглогч нэмэх” товчоор хамт олны нэр, медаль, MMR, байрлалыг бүртгэнэ. 6 багийг бүрдүүлэхэд дор хаяж 30 тоглогч хэрэгтэй.</p></div>
+   <div class="step" id="s2"><div class="t"><h3>2. <span class="tc">6</span> ахлагч сонгох</h3><span class="c" id="s2c"></span></div><p>Тоглогчийн хажуу дахь титэм дээр дарж яг <span class="tc">6</span> ахлагч сонгоод “Ахлагч хадгалах” дарна. Ахлагч бүр аль баг болохыг систем санамсаргүйгээр (random) шийднэ.</p></div>
+   <div class="step" id="s3"><div class="t"><h3>3. Драфт эхлүүлэх</h3></div><p>Snake дараалал: 1→2→3→4→5→6→6→5→4→3→2→1… Баг бүр нэг tier-ээс нэг тоглогч авна. Ахлагч өөрийн tier-ийн нэг байрыг эзэлнэ.</p></div>
   </div>
  </section>
 
  <section class="card hidden" id="leagueCard">
   <div class="ctitle"><svg width="24" height="24" class="t"><use href="#i-shield"/></svg><h2>Лигийн тойм</h2></div>
-  <p class="lead">Энэхүү лиг нь хамт олны нөхөрсөг харилцааг бэхжүүлэх, чөлөөт цагаа хамтдаа зугаатай өнгөрүүлэх зорилготой. Лигт нийт 25 тоглогч 5 багт хуваагдан оролцоно.</p>
+  <p class="lead">Энэхүү лиг нь хамт олны нөхөрсөг харилцааг бэхжүүлэх, чөлөөт цагаа хамтдаа зугаатай өнгөрүүлэх зорилготой. Лигт 6 баг оролцоно.</p>
   <div class="stats">
-   <div class="stat prize"><div class="k">🏆 Шагналын сан</div><div class="v">1,250,000₮</div><div class="s">Оролцооны хураамжаас бүрдэнэ</div></div>
+   <div class="stat prize"><div class="k">🏆 Шагналын сан</div><div class="v">1,250,000₮</div></div>
    <div class="stat gold"><div class="k">🥇 1-р байр</div><div class="v">1,000,000₮</div></div>
    <div class="stat silver"><div class="k">🥈 2-р байр</div><div class="v">250,000₮</div></div>
    <div class="stat"><div class="k">Оролцооны хураамж</div><div class="v">50,000₮</div><div class="s">нэг тоглогч · PC-ны зардал өөрөө</div></div>
-   <div class="stat"><div class="k">Эхлэх өдөр</div><div class="v">12/01</div><div class="s">Мягмар · 11/30-ны долоо хоног</div></div>
+   <div class="stat"><div class="k">Эхлэх өдөр</div><div class="v">Зарлана</div></div>
   </div>
  </section>
 
@@ -221,13 +227,13 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
   <div id="orderWrap"><div class="muted" style="font-size:13px">Сонголтын дараалал</div>
   <div class="order" id="order"></div></div>
   <div class="teams" id="teams"></div>
-  <div id="poolWrap"><h3 style="font-size:18px;margin-bottom:10px">Сонгогдоогүй тоглогчид (<span id="poolN">0</span>)</h3>
+  <div id="poolWrap"><h3 style="font-size:18px;margin-bottom:10px">Тоглогчдын tier · <span id="poolN">0</span> сонгогдоогүй</h3>
   <div id="pool"></div></div>
  </section>
 
  <section class="card hidden" id="schedCard">
   <div class="ctitle"><svg width="24" height="24" class="t"><use href="#i-swords"/></svg><h2>Хэсгийн шатны хуваарь</h2></div>
-  <div class="muted" style="margin:4px 0 16px;font-size:13.5px">10 цуврал тоглолт · бүгд BO2 · долоо хоног бүр Мягмар, Лхагва гарагт 1 цуврал · хэсгийн шат энэ ондоо дуусна</div>
+  <div class="muted" style="margin:4px 0 16px;font-size:13.5px">15 цуврал · бүгд BO2 · тоглох өдөр, цагийг зарлана</div>
   <div class="sched" id="sched"></div>
   <div class="muted" style="margin-top:12px;font-size:13px">Шигшээ шатны тоглолтын хугацааг хэсгийн шат дууссаны дараа мэдэгдэнэ.</div>
  </section>
@@ -236,10 +242,10 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
   <div class="ctitle"><svg width="24" height="24" class="t"><use href="#i-shield"/></svg><h2>Тэмцээний формат</h2></div>
   <div class="cols" style="margin-top:14px">
    <div class="box"><h3>1. Хэсгийн шат</h3>
-    <ul><li>Бүх баг хоорондоо <b>BO2</b> зарчмаар нэг удаа тоглоно — нийт 10 цуврал.</li>
-     <li>Долоо хоногт 2 цуврал, нийт 5 долоо хоног.</li>
+    <ul><li>Бүх баг хоорондоо <b>BO2</b> зарчмаар нэг удаа тоглоно — нийт 15 цуврал.</li>
+     <li>5 тойрогт тус бүр 3 цуврал тоглоно.</li>
      <li>Оноо тэнцвэл bo1 тоглоно.</li>
-     <li>5-р байрын баг хасагдаж, 4 баг шигшээд шалгарна.</li></ul>
+     <li>Эхний 4 баг шигшээд шалгарна.</li></ul>
     <div class="pts"><span>2:0 хожил = <b>3 оноо</b></span><span>1:1 тэнцээ = <b>1 оноо</b> тус бүр</span><span>0:2 ялагдал = <b>0 оноо</b></span></div>
    </div>
    <div class="box"><h3>2. Шигшээ шат</h3>
@@ -262,7 +268,7 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
    <div class="box rule"><h4>Хуваарь солих</h4><p>Тоглох боломжгүй бол өөр багтай тохиролцож, зохион байгуулагчид мэдэгдээд сольж болно.</p></div>
    <div class="box rule"><h4>Онлайн тоглолт</h4><p>Баг дотооддоо зөвшөөрвөл онлайнаар тоглож болно. <b>Тоглолтын өмнөх өдөр</b> зохион байгуулагчид заавал мэдэгдэнэ.</p></div>
    <div class="box rule"><h4>Тоглолтын байр</h4><p>4 давхрын Моно болон оффист ойрхон PC төвтэй тохиролцож байна. Онлайнаар тоглох бол өмнөх өдөр мэдэгдээрэй — захиалсан суудал дэмий үрэгдэхгүй.</p></div>
-   <div class="box rule" style="grid-column:1/-1"><h4>Харилцан хүндэтгэл</h4><p>25 хүн бүгд цаг заваа гаргаж оролцож байгаа тул бие биедээ хүндэтгэлтэй хандаж, тэмцээнийг дундаас нь орхихгүй, бусдаа хүлээлгэхгүй цагтаа тоглоно уу. <b>Амжилт хүсье!</b></p></div>
+   <div class="box rule" style="grid-column:1/-1"><h4>Харилцан хүндэтгэл</h4><p>Оролцогчид бүгд цаг заваа гаргаж оролцож байгаа тул бие биедээ хүндэтгэлтэй хандаж, тэмцээнийг дундаас нь орхихгүй, бусдаа хүлээлгэхгүй цагтаа тоглоно уу. <b>Амжилт хүсье!</b></p></div>
   </div>
  </section>
 
@@ -271,7 +277,6 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
    <div class="ctitle"><svg width="24" height="24"><use href="#i-users"/></svg><h2>Тоглогчид (<span id="pc">0</span>)</h2></div>
    <div class="toolbar adminOnly" id="setupTools">
     <button class="btn red" id="addBtn"><svg width="16" height="16"><use href="#i-plus"/></svg>Тоглогч нэмэх</button>
-    <div class="seg"><button data-n="4">4 баг</button><button data-n="5">5 баг</button></div>
     <button class="btn" id="lockBtn"><svg width="18" height="18"><use href="#i-crown"/></svg><span id="lockTxt">Ахлагч хадгалах</span></button>
     <button class="btn red" id="startBtn"><svg width="18" height="18"><use href="#i-swords"/></svg>Драфт эхлүүлэх</button>
    </div>
@@ -333,11 +338,11 @@ const crown=(w=18)=>`<svg width="${w}" height="${w}"><use href="#i-crown"/></svg
 
 function render(prev){
  if(!S)return;
- document.querySelectorAll('.adminOnly').forEach(e=>e.classList.toggle('hidden',!isAdmin()||!!S.final));
+ document.querySelectorAll('.adminOnly').forEach(e=>e.classList.toggle('hidden',!isAdmin()));
  $('#loginBtn').classList.toggle('hidden',!!ME);$('#logoutBtn').classList.toggle('hidden',!ME);
  const chip=$('#meChip');chip.classList.toggle('hidden',!ME);
  if(ME)chip.innerHTML=ME.role==='admin'?'Админ':`Баг ${ME.team}-ийн ахлагч`;
- $('#connTxt').textContent=!socket.connected?'Холболт тасарсан…':isAdmin()?`Шууд · ${S.online} үзэж байна`:'Шууд';
+ $('#connTxt').textContent=!socket.connected?'Холболт тасарсан…':isAdmin()&&Number.isInteger(S.online)?`Шууд · ${S.online} үзэж байна`:'Шууд';
  $('#subTeams').textContent=S.teamCount;$('#subPlayers').textContent=S.players.length;
  document.querySelectorAll('.tc').forEach(e=>e.textContent=S.teamCount);
  const setup=S.phase==='setup';
@@ -347,43 +352,38 @@ function render(prev){
  $('#setupTools').classList.toggle('hidden',!isAdmin()||!setup);
  // steps
  const nP=S.players.length,nC=S.captains.length;
- $('#s1c').textContent=`${nP}/10+`;$('#s2c').textContent=`${nC}/${S.teamCount}`;
- const step=nP<10?1:!S.captainsLocked?2:3;
+ const minPlayers=S.teamCount*5;
+ $('#s1c').textContent=`${nP}/${minPlayers}`;$('#s2c').textContent=`${nC}/${S.teamCount}`;
+ const step=nP<minPlayers?1:!S.captainsLocked?2:3;
  ['s1','s2','s3'].forEach((id,i)=>{$('#'+id).className='step'+(i+1===step?' active':i+1<step?' done':'')});
  // toolbar
- document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',+b.dataset.n===S.teamCount));
  $('#lockTxt').textContent=S.captainsLocked?`Ахлагч хадгалсан ✓`:`Ахлагч хадгалах (${nC}/${S.teamCount})`;
  $('#lockBtn').disabled=nC!==S.teamCount||S.captainsLocked;
- $('#startBtn').disabled=!S.captainsLocked||nP<10;
+ $('#startBtn').disabled=!S.captainsLocked||nP<minPlayers;
  // players list
  $('#pc').textContent=nP;
- $('#players').innerHTML=`<div class="grid">${byMmr(S.players).map(plCard).join('')}</div>`;
+ $('#players').innerHTML=tiersHtml(tierOf(),plCard);
  const done=S.phase==='done';
  ['#leagueCard','#schedCard','#formatCard','#rulesCard'].forEach(id=>$(id).classList.toggle('hidden',!done));
  if(!setup)renderDraft(prev);
  if(done)renderSchedule();
 }
 
-// Draft-time tiers: ALL players ranked by MMR and cut into groups of <teamCount> (5 by default).
-// Captains keep their tier slot and are shown there as disabled cards (not pickable),
-// so a tier can have only 4 or 3 pickable people.
-// Used only for the draft pool; the setup list stays a plain MMR-sorted list.
-const byMmr=l=>[...l].sort((a,b)=>b.mmr-a.mmr||(+a.id.slice(1))-(+b.id.slice(1)));
+const byMmr=list=>[...list].sort((a,b)=>b.mmr-a.mmr||Number(a.id.slice(1))-Number(b.id.slice(1)));
 const capIds=()=>new Set(S.phase==='setup'?S.captains:S.teams.map(t=>t.captainId));
-function tierOf(){const m={};byMmr(S.players).forEach((p,i)=>m[p.id]=Math.floor(i/S.teamCount)+1);return m}
-function tiersHtml(list,card,emptyMsg){
- const tier=tierOf(),caps=capIds(),groups={};
- byMmr(list).filter(p=>!caps.has(p.id)).forEach(p=>(groups[tier[p.id]]=groups[tier[p.id]]||[]).push(p));
- const keys=Object.keys(groups).map(Number).sort((a,b)=>a-b); // tiers that still have pickable players
- if(!keys.length)return emptyMsg;
- return keys.map(k=>{
-  const g=groups[k],kc=byMmr(S.players.filter(p=>caps.has(p.id)&&tier[p.id]===k));
-  const all=byMmr([...g,...kc]),hi=all[0].mmr,lo=all[all.length-1].mmr;
-  return `<div class="tier"><div class="th"><h3>Tier ${k}</h3><span>${g.length} сонгох боломжтой${kc.length?` · ${kc.length} ахлагч`:''} · ${hi===lo?hi:lo+'–'+hi} MMR</span></div><div class="grid">${all.map(p=>caps.has(p.id)?capCard(p):card(p)).join('')}</div></div>`}).join('');
+function tierOf(){
+ if(S.phase!=='setup'&&S.draftTiers)return S.draftTiers;
+ return Object.fromEntries(byMmr(S.players).slice(0,S.teamCount*5)
+  .map((p,i)=>[p.id,Math.floor(i/S.teamCount)+1]));
 }
-function capCard(p){
- const t=S.teams.find(t=>t.captainId===p.id);
- return `<div class="pl capd" title="Ахлагч — сонгох боломжгүй"><div><div class="n">${crown(18)}${esc(p.name)} ${co(p)}${t?` <span class="tn">Баг ${t.no}</span>`:''}</div><div class="m">${meta(p)}</div></div><span class="capl">Ахлагч</span></div>`;
+function tiersHtml(tiers,renderCard){
+ const groups=Array.from({length:6},()=>[]);
+ for(const player of byMmr(S.players))groups[(tiers[player.id]||6)-1].push(player);
+ return groups.map((group,i)=>{
+  if(i===5&&!group.length)return '';
+  const title=i===5?'Нөөц тоглогчид':`Tier ${i+1}`;
+  return `<div class="tier"><div class="th"><h3>${title}</h3><span>${group.length}${i===5?'':'/6'} хүн</span></div><div class="grid">${group.map(renderCard).join('')}</div></div>`;
+ }).join('');
 }
 function plCard(p){
   const setup=S.phase==='setup';
@@ -398,30 +398,24 @@ function plCard(p){
   return `<div class="pl ${cap?'cap':''}"><div><div class="n">${cap?crown(18):''}${esc(p.name)} ${co(p)}${tno?` <span class="tn">Баг ${tno}</span>`:''}</div><div class="m">${meta(p)}</div></div><div class="acts">${acts}</div></div>`;
 }
 
-// League info from "TechPack Group Dota 2 дотоод лиг" (2026-11-17).
-// Teams are named after their captain; the group-stage schedule is fixed by the organiser.
-const TEAM_BY_CAPTAIN={'MUNKHBOLD (MUMU)':'Momo','ANKHBAATAR':'Ankha','NARANBAATAR':'Naba','TAMIR.D':'Tamir','SANJAA':'Sanja'};
-const SCHEDULE=[ // [no, date, day, teamA, teamB] — all BO2
- [1,'2026-12-01','Мягмар','Sanja','Ankha'],[2,'2026-12-02','Лхагва','Naba','Tamir'],
- [3,'2026-12-08','Мягмар','Sanja','Momo'],[4,'2026-12-09','Лхагва','Naba','Ankha'],
- [5,'2026-12-15','Мягмар','Momo','Tamir'],[6,'2026-12-16','Лхагва','Naba','Sanja'],
- [7,'2026-12-22','Мягмар','Naba','Momo'],[8,'2026-12-23','Лхагва','Tamir','Ankha'],
- [9,'2026-12-29','Мягмар','Momo','Ankha'],[10,'2026-12-30','Лхагва','Tamir','Sanja']];
-const teamName=t=>{const c=P(t.captainId);const n=c&&TEAM_BY_CAPTAIN[c.name];return n?`Team ${n}`:`Баг ${t.no}`};
-const teamByShort=sh=>S.teams.find(t=>{const c=P(t.captainId);return c&&TEAM_BY_CAPTAIN[c.name]===sh});
+const teamName=t=>`Баг ${t.no}`;
 function renderSchedule(){
- const d=new Date(),today=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
- const nextNo=(SCHEDULE.find(m=>m[1]>=today)||[])[0];
- const side=(sh,r)=>{const t=teamByShort(sh),c=t&&P(t.captainId);
-  return `<div class="tm ${r?'r':''}"><b>Team ${esc(sh)}</b><small>${t?`👑 ${esc(c.name)}`:''}</small></div>`};
- $('#sched').innerHTML=SCHEDULE.map(([no,date,day,a,b])=>{
-  const past=date<today,next=no===nextNo;
-  return `<div class="mrow ${past?'past':''} ${next?'next':''}"><span class="no">${no}</span><div class="dt"><b>${date.slice(5).replace('-','/')}</b><small>${day}</small></div>${side(a,1)}<span class="vs">VS</span>${side(b)}<span class="st">${past?'Болсон':next?(date===today?'Өнөөдөр':'Дараагийнх'):'BO2'}</span></div>`}).join('');
+ const rotation=[...S.teams];
+ const side=(team,right=false)=>`<div class="tm ${right?'r':''}"><b>${teamName(team)}</b><small>👑 ${esc(P(team.captainId).name)}</small></div>`;
+ const rows=[];
+ for(let round=1;round<rotation.length;round++){
+  for(let i=0;i<rotation.length/2;i++){
+   const a=rotation[i],b=rotation[rotation.length-1-i];
+   rows.push(`<div class="mrow"><span class="no">${rows.length+1}</span><div class="dt"><b>Тойрог ${round}</b></div>${side(a,true)}<span class="vs">VS</span>${side(b)}<span class="st">BO2</span></div>`);
+  }
+  rotation.splice(1,0,rotation.pop());
+ }
+ $('#sched').innerHTML=rows.join('');
 }
 
 function renderDraft(prev){
  const done=S.phase==='done',cur=S.order[S.pickIndex];
- const myTurn=!done&&ME&&(ME.role==='admin'||ME.team===cur);
+ const myTurn=!done&&!S.tierConflict&&ME&&(ME.role==='admin'||ME.team===cur);
  const mine=!done&&ME&&ME.role==='captain'&&ME.team===cur;
  $('#draftTitle').textContent=done?'Багуудын бүрэлдэхүүн':'Драфт явагдаж байна';
  $('#undoBtn').disabled=!S.history.length;
@@ -430,17 +424,18 @@ function renderDraft(prev){
  $('#coEditBtn').textContent=coEdit?'✓ Дууссан':`Компани засах${missing?` (${missing} дутуу)`:''}`;
  $('#coEditBtn').classList.toggle('red',coEdit);
  const b=$('#banner');b.className='banner'+(mine?' mine':'');
- if(done)b.innerHTML=`<div class="big">🏁 ${S.final?'Эцсийн бүрэлдэхүүн':'Бүх багууд бүрдлээ'}</div><div class="muted">${S.history.length} сонголт хийгдсэн${S.final?' · дүн түгжигдсэн':''}</div>`;
+ if(S.tierConflict)b.innerHTML=`<div class="big">Tier-ийн давхардал</div><div class="muted">${esc(S.tierConflict)}</div>`;
+ else if(done)b.innerHTML=`<div class="big">🏁 Бүх багууд бүрдлээ</div><div class="muted">${S.history.length} сонголт хийгдсэн</div>`;
  else{
   const capt=P(S.teams.find(t=>t.no===cur).captainId);
   b.innerHTML=`<div><div class="big">${mine?'Таны ээлж! Тоглогч сонгоно уу':`Баг ${cur} сонгож байна`}</div><div class="muted">Ахлагч: ${esc(capt.name)} · Сонголт ${S.pickIndex+1}/${S.order.length}</div></div>`+
    (ME?'':`<div class="muted">Ахлагч бол нэвтэрч ээлжээ хүлээнэ үү</div>`);
  }
  document.title=mine?'⚡ Таны ээлж! — Драфт':'TechPack Group Dota 2 дотоод лиг';
- $('#orderWrap').classList.toggle('hidden',done);$('#poolWrap').classList.toggle('hidden',done);
+ $('#orderWrap').classList.toggle('hidden',done);
  $('#order').innerHTML=S.order.map((t,i)=>`<span class="${i<S.pickIndex?'past':i===S.pickIndex&&!done?'now':''}">${t}</span>`).join('');
  const lastId=S.history.length>lastPicks&&prev?S.history[S.history.length-1].playerId:null;lastPicks=S.history.length;
- const tEl=$('#teams');tEl.className='teams'+(S.teamCount===4?' c4':'');
+ const tEl=$('#teams');tEl.className='teams';
  tEl.innerHTML=S.teams.map(t=>{
   const ps=t.players.map(P).filter(Boolean),avg=Math.round(ps.reduce((s,p)=>s+p.mmr,0)/ps.length);
   const total=ps.reduce((s,p)=>s+p.mmr,0);
@@ -448,15 +443,25 @@ function renderDraft(prev){
   // admin: during the draft a full-edit button; after it, a company dropdown (only in "Компани засах" mode)
   const editBtn=isAdmin()&&!done;
   const sel=p=>isAdmin()&&done&&coEdit?`<select class="cosel ${p.company?'':'none'}" data-co="${p.id}" title="Компани"><option value="">Компани…</option>${COMPANIES.map(c=>`<option ${p.company===c?'selected':''}>${c}</option>`).join('')}</select>`:'';
-  let slots=ps.map((p,i)=>`<div class="slot ${i===0?'capt':''} ${p.id===lastId?'new':''} ${editBtn?'ed':''}"><div><b>${i===0?'👑 ':''}${esc(p.name)} ${co(p)}</b><small>${p.mmr} · ${ROLES[p.pos]} / P${p.sec}</small>${sel(p)}</div>${editBtn?`<button class="ib" title="Засах" data-edit="${p.id}"><svg width="15" height="15"><use href="#i-edit"/></svg></button>`:''}</div>`).join('');
+  let slots=ps.map((p,i)=>`<div class="slot ${i===0?'capt':''} ${p.id===lastId?'new':''} ${editBtn?'ed':''}"><div><b>${esc(p.name)} ${co(p)}</b><small>${p.mmr} · ${ROLES[p.pos]} / P${p.sec}</small>${sel(p)}</div>${editBtn?`<button class="ib" title="Засах" data-edit="${p.id}"><svg width="15" height="15"><use href="#i-edit"/></svg></button>`:''}</div>`).join('');
   for(let i=ps.length;i<5;i++)slots+=`<div class="slot empty">—</div>`;
-  const tn=teamName(t),named=tn!==`Баг ${t.no}`;
-  return `<div class="team ${t.no===cur&&!done?'turn':''} ${ME&&ME.team===t.no?'me':''}"><h3><span ${named?'class="tname"':''}>${esc(tn)}</span><span class="muted" style="font-size:14px">${ps.length}/5</span></h3><div class="avg">Нийт ${total} · Дундаж ${avg} MMR</div>${slots}</div>`;
+  const tn=teamName(t);
+  return `<div class="team ${t.no===cur&&!done?'turn':''} ${ME&&ME.team===t.no?'me':''}"><h3><span class="tname">${esc(tn)}</span><span class="muted" style="font-size:14px">${ps.length}/5</span></h3><div class="avg">Нийт ${total} · Дундаж ${avg} MMR</div>${slots}</div>`;
  }).join('');
- const picked=new Set(S.teams.flatMap(t=>t.players));
- const pool=S.players.filter(p=>!picked.has(p.id));
- $('#poolN').textContent=pool.length;
- $('#pool').innerHTML=tiersHtml(pool,p=>`<div class="pl"><div><div class="n">${esc(p.name)} ${co(p)}</div><div class="m">${meta(p)}</div></div>${done?'':`<button class="pick" data-pick="${p.id}" ${myTurn?'':'disabled'}>Сонгох</button>`}</div>`,'<div class="muted">Бүх тоглогч сонгогдсон.</div>');
+ const tiers=tierOf();
+ const assigned=new Map(S.teams.flatMap(t=>t.players.map(id=>[id,t])));
+ const pickingTeamNo=ME?.role==='captain'?ME.team:cur;
+ const pickingTeam=S.teams.find(t=>t.no===pickingTeamNo);
+ const usedTiers=new Set(pickingTeam?.players.map(id=>tiers[id]));
+ $('#poolWrap').classList.remove('hidden');
+ $('#poolN').textContent=S.players.filter(p=>!assigned.has(p.id)&&(!S.draftTiers||tiers[p.id])).length;
+ $('#pool').innerHTML=tiersHtml(tiers,p=>{
+  const team=assigned.get(p.id);
+  const captain=team?.captainId===p.id;
+  const blocked=!!S.draftTiers&&(!tiers[p.id]||usedTiers.has(tiers[p.id]));
+  const label=team?`Баг ${team.no} · ${captain?'Ахлагч':'Сонгосон'}`:!tiers[p.id]?'Нөөц':blocked?'Энэ tier-ээс авсан':'Сонгох';
+  return `<div class="pl ${team?'capd':''} ${captain?'draft-captain':''}"><div><div class="n">${esc(p.name)} ${co(p)}</div><div class="m">${meta(p)}</div></div><button class="pick" data-pick="${p.id}" ${done||team||blocked||!myTurn?'disabled':''}>${label}</button></div>`;
+ });
 }
 
 // ---- events ----
@@ -471,7 +476,6 @@ document.addEventListener('click',async e=>{
  else if(t.dataset.edit)openPlayer(P(t.dataset.edit));
  else if(t.dataset.del){if(t.dataset.sure){act('deletePlayer',{id:t.dataset.del})}else{t.dataset.sure=1;t.style.background='#3a1512';toast('Устгахын тулд дахин дарна уу');setTimeout(()=>{delete t.dataset.sure;t.style.background=''},2500)}}
  else if(t.dataset.pick){t.disabled=true;const r=await act('pick',{playerId:t.dataset.pick});if(r&&r.ok)toast(`${P(t.dataset.pick).name} сонгогдлоо`)}
- else if(t.dataset.n)act('setTeamCount',{n:+t.dataset.n});
  else if(t.hasAttribute('data-close'))t.closest('.modal').classList.remove('open');
 });
 $('#lockBtn').onclick=()=>act('lockCaptains');
