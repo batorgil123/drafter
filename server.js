@@ -20,12 +20,17 @@ if (process.env.TEAM6_PASSWORD) {
   }
 }
 const previousDraft = require('./draft-result.json');
+// Committed roster used when DATA_FILE does not exist yet (e.g. a fresh deploy).
+const ROSTER_FILE = path.join(__dirname, 'players.json');
+const initialPlayers = fs.existsSync(ROSTER_FILE)
+  ? JSON.parse(fs.readFileSync(ROSTER_FILE, 'utf8'))
+  : previousDraft.players;
 const TEAM_COUNT = 6;
 const MIN_PLAYERS = TEAM_COUNT * 5;
 const STATE_VERSION = 2;
 
 // ---------- state ----------
-function freshState(players = previousDraft.players) {
+function freshState(players = initialPlayers) {
   return {
     version: STATE_VERSION,
     players: players.map((player) => ({ ...player })),
@@ -107,7 +112,7 @@ function buildOrder(teamCount, poolSize) {
   return order;
 }
 
-const COMPANIES = ['MCST', 'EM', 'TPG', 'TPI', 'FP'];
+const COMPANIES = ['MCST', 'EM', 'TPG', 'TPI', 'FP', 'AA'];
 function playerFrom(d) {
   const mmr = Math.max(0, Math.min(15000, parseInt(d.mmr, 10) || 0));
   const pos = Math.max(1, Math.min(5, parseInt(d.pos, 10) || 1));

@@ -314,7 +314,7 @@ input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const ROLES={1:'Carry',2:'Mid',3:'Offlane',4:'Support',5:'Hard Support'};
-const COMPANIES=['MCST','EM','TPG','TPI','FP'];
+const COMPANIES=['MCST','EM','TPG','TPI','FP','AA'];
 const MEDALS=['Herald','Guardian','Crusader','Archon','Legend','Ancient','Divine','Immortal'];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -332,7 +332,7 @@ function act(type,data){return new Promise(r=>socket.emit('action',{type,data},r
 
 const isAdmin=()=>ME&&ME.role==='admin';
 const P=id=>S.players.find(p=>p.id===id);
-const meta=p=>`${esc(p.medal)} · <b>${p.mmr}</b> MMR · ${p.pos} · ${ROLES[p.pos]} / P${p.sec}`;
+const meta=p=>`${esc(String(p.medal || '').replace(/\s+\d+\s*$/, ''))} · <b>${p.mmr}</b> MMR · ${p.pos} · ${ROLES[p.pos]} / P${p.sec}`;
 const co=p=>p.company?`<span class="co">${esc(p.company)}</span>`:'';
 const crown=(w=18)=>`<svg width="${w}" height="${w}"><use href="#i-crown"/></svg>`;
 
@@ -437,8 +437,9 @@ function renderDraft(prev){
  const lastId=S.history.length>lastPicks&&prev?S.history[S.history.length-1].playerId:null;lastPicks=S.history.length;
  const tEl=$('#teams');tEl.className='teams';
  tEl.innerHTML=S.teams.map(t=>{
-  const ps=t.players.map(P).filter(Boolean),avg=Math.round(ps.reduce((s,p)=>s+p.mmr,0)/ps.length);
-  const total=ps.reduce((s,p)=>s+p.mmr,0);
+  const ps=t.players.map(P).filter(Boolean);
+  const total=ps.reduce((sum,p)=>sum+p.mmr,0);
+  const avg=ps.length?Math.round(total/ps.length):0;
   // admin: after the draft, pick the company right on the team card; during the draft, full edit
   // admin: during the draft a full-edit button; after it, a company dropdown (only in "Компани засах" mode)
   const editBtn=isAdmin()&&!done;
