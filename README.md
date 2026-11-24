@@ -21,8 +21,7 @@ Render.com / Railway / Fly.io эсвэл өөрийн VPS дээр Node web serv
 - Build: `npm install` · Start: `npm start`
 - WebSocket дэмждэг байх (дээрх бүгд дэмждэг).
 - Тоглогч нэмэх зэрэг өөрчлөлтийг сервер амжилттай гэж хариулахаас өмнө `DATA_FILE` дахь JSON-д хадгална. Deploy болон дахин асаалтын дараа бүртгэлээ хадгалахын тулд хостингийн persistent disk холбож, `DATA_FILE`-г тухайн диск дээрх файл руу заана.
-- `data.json` git-д ордоггүй. `DATA_FILE` байхгүй үед (жишээ нь шинэ deploy) сервер `players.json` дахь тоглогчдоор эхэлнэ (файл байхгүй бол `draft-result.json`). Локал дээр нэмсэн тоглогчдоо deploy руу оруулахын тулд `players.json`-г шинэчилж commit хийнэ:
-  `node -e 'const d=require("./data.json");require("fs").writeFileSync("players.json",JSON.stringify(d.players,null,2)+"\n")'`
+- Драфт дууссан бөгөөд эцсийн багууд `draft-final.json`-д commit хийгдсэн. `DATA_FILE`-д дууссан драфт байхгүй үед (жишээ нь persistent disk-гүй шинэ deploy) сервер энэ файлаас эхэлнэ. Дууссан драфтыг “Буцаах” болон “Драфт дахин эхлүүлэх”-ээр өөрчлөх боломжгүй (түгжигдсэн).
 - Өмнөх драфтын үр дүн `draft-result.json`-д архив хэвээр байна.
 
 ## Драфтын урсгал

@@ -19,35 +19,14 @@ if (process.env.TEAM6_PASSWORD) {
     ACCOUNTS.push({ username: 'team6', password: process.env.TEAM6_PASSWORD, role: 'captain', team: 6 });
   }
 }
-const previousDraft = require('./draft-result.json');
-// Committed roster used when DATA_FILE does not exist yet (e.g. a fresh deploy).
-const ROSTER_FILE = path.join(__dirname, 'players.json');
-const initialPlayers = fs.existsSync(ROSTER_FILE)
-  ? JSON.parse(fs.readFileSync(ROSTER_FILE, 'utf8'))
-  : previousDraft.players;
+// Finished draft committed to the repo. Used whenever DATA_FILE has no finished draft, so a
+// fresh deploy (no persistent disk) still shows the final teams.
+const FINAL_DRAFT = JSON.parse(fs.readFileSync(path.join(__dirname, 'draft-final.json'), 'utf8'));
 const TEAM_COUNT = 6;
 const MIN_PLAYERS = TEAM_COUNT * 5;
 const STATE_VERSION = 2;
 
 // ---------- state ----------
-function freshState(players = initialPlayers) {
-  return {
-    version: STATE_VERSION,
-    players: players.map((player) => ({ ...player })),
-    nextId: Math.max(0, ...players.map((player) => Number(player.id.slice(1)) || 0)) + 1,
-    teamCount: TEAM_COUNT,
-    captains: [],
-    captainsLocked: false,
-    captainOrder: [],
-    phase: 'setup',
-    teams: [],
-    order: [],
-    pickIndex: 0,
-    history: [],
-    draftTiers: null,
-  };
-}
-
 function rankDraftTiers(players) {
   const ranked = [...players].sort((a, b) => b.mmr - a.mmr || Number(a.id.slice(1)) - Number(b.id.slice(1)));
   return Object.fromEntries(ranked.slice(0, MIN_PLAYERS).map((player, index) => [
@@ -61,15 +40,12 @@ function loadState() {
     saved = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
-    return freshState();
   }
-  if (saved.version === STATE_VERSION) {
-    if (saved.phase !== 'setup' && !saved.draftTiers) saved.draftTiers = rankDraftTiers(saved.players);
-    return saved;
-  }
-  const archivedIds = new Set(previousDraft.players.map((player) => player.id));
-  const extraPlayers = saved.players.filter((player) => !archivedIds.has(player.id));
-  return freshState([...previousDraft.players, ...extraPlayers]);
+  // Keep a saved finished draft (it may hold later company/player edits); anything else
+  // falls back to the committed final draft.
+  if (!saved || saved.version !== STATE_VERSION || saved.phase !== 'done') return structuredClone(FINAL_DRAFT);
+  if (!saved.draftTiers) saved.draftTiers = rankDraftTiers(saved.players);
+  return saved;
 }
 
 let state = loadState();
@@ -172,11 +148,14 @@ const actions = {
     state.pickIndex = 0; state.history = []; state.phase = state.order.length ? 'draft' : 'done';
   },
   undo() {
+    if (state.phase === 'done') throw new Error('Драфт дууссан тул түгжигдсэн');
     const h = state.history.pop(); if (!h) throw new Error('Буцаах сонголт алга');
     const t = state.teams.find((x) => x.no === h.team); t.players = t.players.filter((p) => p !== h.playerId);
     state.pickIndex--; state.phase = 'draft';
   },
-  resetDraft() { Object.assign(state, { phase: 'setup', teams: [], order: [], pickIndex: 0, history: [], draftTiers: null }); },
+  resetDraft() {
+    if (state.phase === 'done') throw new Error('Драфт дууссан тул түгжигдсэн');
+    Object.assign(state, { phase: 'setup', teams: [], order: [], pickIndex: 0, history: [], draftTiers: null }); },
   setCompany(a, d) { // An empty value clears the company.
     const p = getP(d.id); if (!p) throw new Error('Тоглогч олдсонгүй');
     const c = String(d.company || '').trim().toUpperCase();
